@@ -1,2 +1,3 @@
 # Time-Travel
-Extract dates from messy filenames and bring order to your folders
+Bring order to your folders by extracting dates from messy filenames
+###### Code written by Francesco Ostidich
