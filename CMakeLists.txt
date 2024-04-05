@@ -5,8 +5,8 @@ project(time-travel)
 set(CMAKE_C_STANDARD 17)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 
-file(GLOB_RECURSE SOURCES "src/*.cpp" "src/*.c" "lib/*.cpp" "lib/*.c")
-file(GLOB_RECURSE HEADERS "include/*.hpp" "include/*.h" "lib/*.hpp" "lib/*.h")
+file(GLOB_RECURSE SOURCES "src/*.c" "lib/*.c")
+file(GLOB_RECURSE HEADERS "include/*.h" "lib/*.h")
 include_directories(include lib)
 add_executable(${PROJECT_NAME} ${SOURCES} ${HEADERS})
 
