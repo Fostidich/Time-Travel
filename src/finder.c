@@ -4,40 +4,46 @@
 
 #include <string.h>
 #include <ctype.h>
+#include <stdbool.h>
 #include "finder.h"
 #include "main.h"
 
-int findDate(char* dest, const char *filename) {
+int findDate(char *dest, const char *filename) {
     if (strlen(filename) > FILENAME_LEN - 1) {
         return -1; // Destination buffer overflow
     }
 
-    int num_letters = 0;
-    int all_uppercase = 1; // Assume all uppercase initially
+    bool has_letters = false;
+    bool has_digits = false;
 
-    for (int i = 0; filename[i] != '\0'; i++) {
+    int i = 0;
+    while (filename[i] != '\0') {
         if (isalpha(filename[i])) {
-            num_letters++;
+            has_letters = true;
             if (islower(filename[i])) {
-                all_uppercase = 0;
-                dest[i] = toupper(filename[i]);
+                dest[i] = toupper(filename[i]); // NOLINT(*-narrowing-conversions)
             } else {
-                dest[i] = filename[i]; // Already uppercase
+                dest[i] = filename[i];
             }
+        } else if (isdigit(filename[i])) {
+            has_digits = true;
+            dest[i] = filename[i];
         } else {
-            dest[i] = filename[i]; // Copy non-letter characters
+            dest[i] = filename[i];
         }
+        i++;
     }
 
-    dest[FILENAME_LEN - 1] = '\0'; // Ensure null termination in case of overflow
+    dest[i] = '\0';
 
-    if (num_letters == 0) {
-        return -2; // No letters present
-    } else if (all_uppercase) {
-        return -1; // All letters already uppercase
+    if (!has_letters) {
+        return DATE_UNKNOWN; // No letters present
+    } else if (!has_digits) {
+        return DATE_FOUND; // Only letters present
     } else {
-        return 0;  // Conversion successful
+        return DATE_UNSURE;  // Conversion successful (letters and digits or just digits)
     }
 }
+
 
 // TODO: check if name is already ok
