@@ -5,6 +5,7 @@
 #ifndef TIME_TRAVEL_FINDER_H
 #define TIME_TRAVEL_FINDER_H
 
+#define DATE_LEN 10
 #define DATE_FOUND 0
 #define DATE_UNSURE (-1)
 #define DATE_UNKNOWN (-2)

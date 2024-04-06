@@ -3,47 +3,31 @@
 //
 
 #include <string.h>
-#include <ctype.h>
-#include <stdbool.h>
 #include "finder.h"
 #include "main.h"
 
 int findDate(char *dest, const char *filename) {
-    if (strlen(filename) > FILENAME_LEN - 1) {
-        return -1; // Destination buffer overflow
+    // if same length as date return unchanged
+    if (strlen(filename) == DATE_LEN) {
+        strcpy(dest, filename);
+        return DATE_FOUND;
     }
 
-    bool has_letters = false;
-    bool has_digits = false;
+    // if starts with uppercase return unknown
+    if (filename[0] >= 'A' && filename[0] <= 'Z')
+        return DATE_UNKNOWN;
 
-    int i = 0;
-    while (filename[i] != '\0') {
-        if (isalpha(filename[i])) {
-            has_letters = true;
-            if (islower(filename[i])) {
-                dest[i] = toupper(filename[i]); // NOLINT(*-narrowing-conversions)
-            } else {
-                dest[i] = filename[i];
-            }
-        } else if (isdigit(filename[i])) {
-            has_digits = true;
-            dest[i] = filename[i];
-        } else {
-            dest[i] = filename[i];
-        }
-        i++;
+    // if starts with lowercase return unsure
+    if (filename[0] >= 'a' && filename[0] <= 'z') {
+        strncpy(dest, filename, 3);
+        strcpy(dest + 3, "-unsure");
+        return DATE_UNSURE;
     }
 
-    dest[i] = '\0';
-
-    if (!has_letters) {
-        return DATE_UNKNOWN; // No letters present
-    } else if (!has_digits) {
-        return DATE_FOUND; // Only letters present
-    } else {
-        return DATE_UNSURE;  // Conversion successful (letters and digits or just digits)
-    }
+    // if starts with digit (otherwise) return found
+    strncpy(dest, filename, 3);
+    strcpy(dest + 3, "--found");
+    return DATE_FOUND;
 }
-
 
 // TODO: check if name is already ok

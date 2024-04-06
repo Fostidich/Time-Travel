@@ -5,8 +5,6 @@
 #ifndef TIME_TRAVEL_MAIN_H
 #define TIME_TRAVEL_MAIN_H
 
-#define FILENAME_LEN 256
-
 int main(int argc, char **argv);
 
 #endif //TIME_TRAVEL_MAIN_H

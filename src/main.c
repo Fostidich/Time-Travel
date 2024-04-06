@@ -6,16 +6,17 @@
 #include <dirent.h>
 #include <string.h>
 #include <stdlib.h>
+#include <unistd.h>
 #include "main.h"
 #include "finder.h"
 
-#define WHITE "\033[0;37m"
 #define GREY "\033[0;30m"
-#define YELLOW "\033[0;33m"
 #define RED "\033[0;31m"
+#define YELLOW "\033[0;33m"
+#define WHITE "\033[0;37m"
 
 int main(int argc, char **argv) {
-    if (argc == 1) {
+    if (argc == 1 || strlen(argv[0]) > 3584) {
         fprintf(stderr, "ERROR: no directory provided\n");
         exit(1);
     }
@@ -33,7 +34,7 @@ int main(int argc, char **argv) {
     printf("Analyzing filenames in %s\n\n", path);
     long changed = 0;
     while ((entry = readdir(dir)) != NULL) {
-        if (entry->d_type != DT_REG)
+        if (entry->d_type != DT_REG || entry->d_name[0] == '.')
             continue;
 
         size_t filename_length = strnlen(entry->d_name, sizeof(entry->d_name) - 1);
@@ -45,8 +46,23 @@ int main(int argc, char **argv) {
             continue;
         }
 
-        char new_name[FILENAME_LEN];
+        char *first_dot = strchr(filename, '.');
+        size_t extension_length = 1;
+        char extension[sizeof(entry->d_name) - 2];
+        int has_extension = first_dot != NULL && first_dot != filename + filename_length - 1;
+        if (has_extension) {
+            extension_length = filename + filename_length - first_dot + 1;
+            strncpy(extension, first_dot, extension_length);
+            *first_dot = '\0';
+        }
+
+        char new_name[DATE_LEN + extension_length];
         const int outcome = findDate(new_name, filename);
+        if (has_extension) {
+            strncpy(first_dot, extension, extension_length);
+            strncpy(new_name + DATE_LEN, extension, extension_length);
+        }
+
         if (outcome == DATE_UNKNOWN) {
             printf("%sUNKNOWN DATE: %s%s\n", RED, filename, WHITE);
             continue;
@@ -60,6 +76,22 @@ int main(int argc, char **argv) {
         char old_path[PATH_MAX], new_path[PATH_MAX];
         snprintf(old_path, PATH_MAX, "%s/%s", path, filename);
         snprintf(new_path, PATH_MAX, "%s/%s", path, new_name);
+        if (access(new_path, F_OK) == 0) {
+            int duplicates = 1;
+            char temp[PATH_MAX];
+            do {
+                if (has_extension) {
+                    char *last_dot = strrchr(new_path, '.');
+                    snprintf(temp, PATH_MAX, "%.*s (%d)%s",
+                             (int)(last_dot - new_path), new_path, duplicates, extension);
+                } else {
+                    snprintf(temp, PATH_MAX, "%.4000s (%d)", new_path, duplicates);
+                }
+                duplicates++;
+            } while (access(temp, F_OK) == 0);
+            strcpy(new_path, temp);
+        }
+
         if (rename(old_path, new_path) != 0) {
             printf("%sERROR: unable to rename -> %s%s\n", RED, filename, WHITE);
             continue;
