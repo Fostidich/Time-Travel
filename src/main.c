@@ -49,8 +49,8 @@ int main(int argc, char **argv) {
         char *first_dot = strchr(filename, '.');
         size_t extension_length = 1;
         char extension[sizeof(entry->d_name) - 2];
-        int has_extension = first_dot != NULL && first_dot != filename + filename_length - 1;
-        if (has_extension) {
+        extension[0] = '\0';
+        if (first_dot != NULL && first_dot != filename + filename_length - 1) {
             extension_length = filename + filename_length - first_dot + 1;
             strcpy(extension, first_dot);
             *first_dot = '\0';
@@ -58,10 +58,8 @@ int main(int argc, char **argv) {
 
         char new_name[DATE_LEN + extension_length + 16];
         const int outcome = findDate(new_name, filename);
-        if (has_extension) {
-            strcpy(first_dot, extension);
-            strcpy(new_name + DATE_LEN, extension);
-        }
+        if (extension[0] != '\0') strcpy(first_dot, extension);
+        strcpy(new_name + DATE_LEN, extension);
 
         if (outcome == DATE_UNKNOWN) {
             printf("%sUNKNOWN DATE: %s%s\n", RED, filename, WHITE);
@@ -80,19 +78,12 @@ int main(int argc, char **argv) {
             int duplicates = 1;
             char temp[PATH_MAX];
             do {
-                if (has_extension) {
-                    char *last_dot = strrchr(new_path, '.');
-                    snprintf(temp, PATH_MAX, "%.*s (%d)%s",
-                             (int) (last_dot - new_path), new_path, duplicates, extension);
-                } else {
-                    snprintf(temp, PATH_MAX, "%.4000s (%d)", new_path, duplicates);
-                }
+                snprintf(temp, PATH_MAX, "%s/%.*s (%d)%s",
+                         path, DATE_LEN, new_name, duplicates, extension);
                 duplicates++;
             } while (access(temp, F_OK) == 0);
             strcpy(new_path, temp);
-            has_extension ?
-            sprintf(new_name + DATE_LEN, " (%d)%s", duplicates, extension) :
-            sprintf(new_name + DATE_LEN, " (%d)", duplicates);
+            sprintf(new_name + DATE_LEN, " (%d)%s", duplicates, extension);
         }
 
         if (rename(old_path, new_path) != 0) {
