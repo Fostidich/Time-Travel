@@ -4,31 +4,49 @@
 
 #include <regex.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include "finder.h"
 #include "main.h"
 
+// TODO: remember to find months in word format
+
+#define CAPTURES 3
+
 int findDate(char *dest, const char *filename) {
-    int nums[3] = {0};
-
-    char *pattern = "((\\d+)(.|-|/|\\)){2,3}";
+    const char *pattern = "([[:digit:]]{2})[-| |\\]([[:digit:]]{2})[-| |\\]([[:digit:]]{2})";
     regex_t regex;
-    int reg_out = regcomp(&regex, pattern, REG_EXTENDED);
-    if (reg_out) return DATE_UNKNOWN;
+    regmatch_t matches[CAPTURES + 1];
+    int nums[CAPTURES] = {0};
 
-    regmatch_t matches[3];
-    reg_out = regexec(&regex, filename, 3, matches, 0);
+    // regex compilation providing pattern
+    if (regcomp(&regex, pattern, REG_EXTENDED) != 0) return DATE_UNKNOWN;
 
-    if (!reg_out) {
-        int nums_index = 0;
-        for (int i = 1; i < 4 && matches[i].rm_so != -1; i++) {
-            char *match_str = &filename[matches[i].rm_so];
-            int len = matches[i].rm_eo - matches[i].rm_so;
+    // regex execution for pattern matching
+    if (regexec(&regex, filename, CAPTURES + 1, matches, 0) != 0) return DATE_UNKNOWN;
 
-            int num = strtol(match_str, NULL, 10);
 
-            nums[nums_index++] = num;
-        }
-
-        regfree(&regex);
+    for (int g = 0; g < CAPTURES; g++) {
+        if (matches[g + 1].rm_so == -1) return DATE_UNKNOWN;
+        char temp[12];
+        sprintf(temp, "%.*s", matches[g + 1].rm_eo - matches[g + 1].rm_so, filename + matches[g + 1].rm_so);
+        nums[g] = atoi(temp); // NOLINT(*-err34-c)
     }
+
+    sprintf(dest, "20%02d-%02d-%02d", nums[2], nums[1], nums[0]);
+    regfree(&regex);
+
+    return DATE_FOUND;
 }
+
+/*
+ * FORMATS:
+ * [YYYY|YY]MMDD
+ * [YYYY|YY][\| |-][MM|M][\| |-][DD|D]
+ * DDMM[YYYY|YY]
+ * [DD|D][\| |-][MM|M][\| |-][YYYY|YY]
+ * DDMM
+ * [DD|D][\| |-][MM|M]
+ * MMDD
+ * [MM|M][\| |-][DD|D]
+ * *months with alpha chars
+ */
