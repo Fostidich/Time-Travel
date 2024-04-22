@@ -15,7 +15,12 @@
 #define YELLOW "\033[0;33m"
 #define WHITE "\033[0;37m"
 
-int main(int argc, char **argv) {
+#ifdef TEST
+int main1(int argc, char **argv)
+#else
+int main(int argc, char **argv)
+#endif
+{
     if (argc == 1 || strlen(argv[0]) > 3584) {
         fprintf(stderr, "ERROR: no directory provided\n");
         exit(1);
@@ -57,7 +62,7 @@ int main(int argc, char **argv) {
         }
 
         char new_name[DATE_LEN + extension_length + 16];
-        const int outcome = findDate(new_name, filename);
+        const int outcome = find_date(new_name, filename);
         if (extension[0] != '\0') strcpy(first_dot, extension);
         strcpy(new_name + DATE_LEN, extension);
 

@@ -20,7 +20,7 @@ const char *months[4][12] = {
         {"gen",     "feb",      "mar",   "apr",    "mag",    "giu",    "lug",    "ago",    "set",       "ott",     "nov",      "dic"}
 };
 
-int findDate(char *dest, const char *filename) {
+int find_date(char *dest, const char *filename) {
     int found = 0;
     regex_t *regex = malloc(sizeof(regex_t));
     regcomp(regex, "", 0);
