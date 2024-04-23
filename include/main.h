@@ -6,7 +6,8 @@
 #define TIME_TRAVEL_MAIN_H
 
 #define CP printf("CP "); fflush(stdout);
-#define PV(str) printf("%s ", str); fflush(stdout);
+#define PS(str) printf("%s ", str); fflush(stdout);
+#define PI(var) printf("%d ", var); fflush(stdout);
 
 #ifdef TEST
 int main1(int argc, char **argv);

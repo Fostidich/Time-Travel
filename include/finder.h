@@ -22,9 +22,9 @@ extern const char *months[4][12];
 
 int find_date(char *dest, const char *filename);
 
-int searchYMD(regex_t *regex, const char *pattern, const char *source, date_t *date);
 int searchDMY(regex_t *regex, const char *pattern, const char *source, date_t *date);
-int searchDM(regex_t *regex, const char *pattern, const char *source, date_t *date);
+int searchYMD(regex_t *regex, const char *pattern, const char *source, date_t *date);
 int searchMD(regex_t *regex, const char *pattern, const char *source, date_t *date);
+int searchDM(regex_t *regex, const char *pattern, const char *source, date_t *date);
 
 #endif //TIME_TRAVEL_FINDER_H
