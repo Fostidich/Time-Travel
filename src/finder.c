@@ -10,10 +10,25 @@
 #include "finder.h"
 #include "main.h"
 
-#define M4(str) found += searchDMY(regex, "^" str "$", filename, date); \
+#define DMY(str) found += searchDMY(regex, "^" str "$", filename, date); \
                 found += searchDMY(regex, "^" str "[^[:digit:]]", filename, date); \
                 found += searchDMY(regex, "[^[:digit:]]" str "$", filename, date); \
                 found += searchDMY(regex, "[^[:digit:]]" str "[^[:digit:]]", filename, date);
+
+#define YMD(str) found += searchYMD(regex, "^" str "$", filename, date); \
+                found += searchYMD(regex, "^" str "[^[:digit:]]", filename, date); \
+                found += searchYMD(regex, "[^[:digit:]]" str "$", filename, date); \
+                found += searchYMD(regex, "[^[:digit:]]" str "[^[:digit:]]", filename, date);
+
+#define DM(str) found += searchDM(regex, "^" str "$", filename, date); \
+                found += searchDM(regex, "^" str "[^[:digit:]]", filename, date); \
+                found += searchDM(regex, "[^[:digit:]]" str "$", filename, date); \
+                found += searchDM(regex, "[^[:digit:]]" str "[^[:digit:]]", filename, date);
+
+#define MD(str) found += searchMD(regex, "^" str "$", filename, date); \
+                found += searchMD(regex, "^" str "[^[:digit:]]", filename, date); \
+                found += searchMD(regex, "[^[:digit:]]" str "$", filename, date); \
+                found += searchMD(regex, "[^[:digit:]]" str "[^[:digit:]]", filename, date);
 
 // TODO: remember to find months in word format
 // TODO: check for multiple matches
@@ -34,29 +49,29 @@ int find_date(char *dest, const char *filename) {
     // searches must be put from less likely to most likely
     // these could be definitely compacted using PCREv2 but for now idc
 
-    M4("([[:digit:]]{2})([[:digit:]]{2})([[:digit:]]{2})") // 210424
-    M4("([[:digit:]]{2})([[:digit:]]{2})20([[:digit:]]{2})") // 21042024
-    M4("([[:digit:]]{1,2})[[:punct:]]([[:digit:]]{1,2})[[:punct:]]([[:digit:]]{2})") // 21-04-24
-    M4("([[:digit:]]{1,2}) ([[:digit:]]{1,2}) ([[:digit:]]{2})") // 21 04 24
-    M4("([[:digit:]]{1,2})[[:punct:]]([[:digit:]]{1,2})[[:punct:]]20([[:digit:]]{2})") // 21-04-2024
-    M4("([[:digit:]]{1,2}) ([[:digit:]]{1,2}) 20([[:digit:]]{2})") // 21 04 2024
+    DMY("([[:digit:]]{2})([[:digit:]]{2})([[:digit:]]{2})") // 210424
+    DMY("([[:digit:]]{2})([[:digit:]]{2})20([[:digit:]]{2})") // 21042024
+    DMY("([[:digit:]]{1,2})[[:punct:]]([[:digit:]]{1,2})[[:punct:]]([[:digit:]]{2})") // 21-04-24
+    DMY("([[:digit:]]{1,2}) ([[:digit:]]{1,2}) ([[:digit:]]{2})") // 21 04 24
+    DMY("([[:digit:]]{1,2})[[:punct:]]([[:digit:]]{1,2})[[:punct:]]20([[:digit:]]{2})") // 21-04-2024
+    DMY("([[:digit:]]{1,2}) ([[:digit:]]{1,2}) 20([[:digit:]]{2})") // 21 04 2024
 
-    M4("([[:digit:]]{2})([[:digit:]]{2})([[:digit:]]{2})") // 240421
-    M4("20([[:digit:]]{2})([[:digit:]]{2})([[:digit:]]{2})") // 20240421
-    M4("([[:digit:]]{2})[[:punct:]]([[:digit:]]{1,2})[[:punct:]]([[:digit:]]{1,2})") // 24-04-21
-    M4("([[:digit:]]{2}) ([[:digit:]]{1,2}) ([[:digit:]]{1,2})") // 24 04 21
-    M4("20([[:digit:]]{2})[[:punct:]]([[:digit:]]{1,2})[[:punct:]]([[:digit:]]{1,2})") // 2024-04-21
-    M4("20([[:digit:]]{2}) ([[:digit:]]{1,2}) ([[:digit:]]{1,2})") // 2024 04 21
+    YMD("([[:digit:]]{2})([[:digit:]]{2})([[:digit:]]{2})") // 240421
+    YMD("20([[:digit:]]{2})([[:digit:]]{2})([[:digit:]]{2})") // 20240421
+    YMD("([[:digit:]]{2})[[:punct:]]([[:digit:]]{1,2})[[:punct:]]([[:digit:]]{1,2})") // 24-04-21
+    YMD("([[:digit:]]{2}) ([[:digit:]]{1,2}) ([[:digit:]]{1,2})") // 24 04 21
+    YMD("20([[:digit:]]{2})[[:punct:]]([[:digit:]]{1,2})[[:punct:]]([[:digit:]]{1,2})") // 2024-04-21
+    YMD("20([[:digit:]]{2}) ([[:digit:]]{1,2}) ([[:digit:]]{1,2})") // 2024 04 21
 
     if (found > 0) goto FINISH;
     
-    M4("([[:digit:]]{2})([[:digit:]]{2})") // 0422
-    M4("([[:digit:]]{2})[[:punct:]]([[:digit:]]{2})") // 04-22
-    M4("([[:digit:]]{2}) ([[:digit:]]{2})") // 04 22
+    DM("([[:digit:]]{2})([[:digit:]]{2})") // 2204
+    DM("([[:digit:]]{2})[[:punct:]]([[:digit:]]{2})") // 22-04
+    DM("([[:digit:]]{2}) ([[:digit:]]{2})") // 22 04
 
-    M4("([[:digit:]]{2})([[:digit:]]{2})") // 2204
-    M4("([[:digit:]]{2})[[:punct:]]([[:digit:]]{2})") // 22-04
-    M4("([[:digit:]]{2}) ([[:digit:]]{2})") // 22 04
+    MD("([[:digit:]]{2})([[:digit:]]{2})") // 0422
+    MD("([[:digit:]]{2})[[:punct:]]([[:digit:]]{2})") // 04-22
+    MD("([[:digit:]]{2}) ([[:digit:]]{2})") // 04 22
 
     FINISH:
 
