@@ -61,7 +61,30 @@ void no_input_test() {
     spread_finder_input(DATE_FOUND, "2024-04-22", "22 04");
     spread_finder_input(DATE_FOUND, "2024-04-22", "22-04");
 
-    printf("\n\nTest passed: %d/%d", test_passed, test_number);
+    // Now literal months
+
+    spread_finder_input(DATE_UNSURE, "2024-01-22", "24january22");
+    spread_finder_input(DATE_FOUND, "2024-02-22", "22feb2024");
+    spread_finder_input(DATE_FOUND, "2032-03-22", "22 marzo 32");
+    spread_finder_input(DATE_FOUND, "2032-04-22", "22-apr-32");
+    spread_finder_input(DATE_FOUND, "2024-05-22", "22 may 2024");
+    spread_finder_input(DATE_FOUND, "2024-06-22", "22-jun-2024");
+
+    spread_finder_input(DATE_FOUND, "2032-07-22", "22luglio32");
+    spread_finder_input(DATE_FOUND, "2024-08-22", "2024ago22");
+    spread_finder_input(DATE_FOUND, "2032-09-22", "32 september 22");
+    spread_finder_input(DATE_FOUND, "2032-10-22", "32-oct-22");
+    spread_finder_input(DATE_FOUND, "2024-11-22", "2024 novembre 22");
+    spread_finder_input(DATE_FOUND, "2024-12-22", "2024-dic-22");
+
+    spread_finder_input(DATE_FOUND, "2024-01-22", "gen22");
+    spread_finder_input(DATE_FOUND, "2024-02-22", "22febbraio");
+    spread_finder_input(DATE_FOUND, "2024-03-22", "mar 22");
+    spread_finder_input(DATE_FOUND, "2024-04-22", "april-22");
+    spread_finder_input(DATE_FOUND, "2024-05-22", "22 mag");
+    spread_finder_input(DATE_FOUND, "2024-06-22", "22-giugno");
+
+    printf("\nTest passed: %d/%d", test_passed, test_number);
 }
 
 void spread_finder_input(int output, char *predicted, char *input) {
@@ -77,6 +100,7 @@ void spread_finder_input(int output, char *predicted, char *input) {
 }
 
 void test_finder(int output, char *predicted, char *input) {
+#define TN_LEN 3
     test_number++;
     char dest[MAX_LEN], first[MAX_LEN], second[MAX_LEN], third[MAX_LEN];
     int passed = 0;
@@ -84,13 +108,14 @@ void test_finder(int output, char *predicted, char *input) {
     if (res == output) passed++;
     if (strcmp(dest, predicted) == 0) passed++;
     if (passed == 2) {
-        sprintf(first, "test %2d: passed", test_number);
+        sprintf(first, "test %.*d: passed", TN_LEN, test_number);
         test_passed++;
     } else
-        sprintf(first, "test %2d: not passed", test_number);
+        sprintf(first, "test %.*d: not passed", TN_LEN, test_number);
     sprintf(second, "%2d =?= %d", res, output);
     sprintf(third, "%.125s =?= %.125s", dest, predicted);
     print_formatted(first, second, third, input);
+#undef TN_LEN
 }
 
 void print_formatted(char *first, char *second, char *third, char *input) {
