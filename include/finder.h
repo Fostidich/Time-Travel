@@ -12,16 +12,22 @@
 #define DATE_UNSURE (-1)
 #define DATE_UNKNOWN (-2)
 
+#define MONTH_LANG 4
+
 typedef struct date {
     unsigned short day;
     unsigned short month;
     unsigned short year;
 } date_t;
 
-extern const char *months[4][12];
+extern const char *months[12][MONTH_LANG];
 
 int find_date(char *dest, const char *filename);
 
+int searchDmY(regex_t *regex, const char *pattern, const char *source, date_t *date, int month);
+int searchYmD(regex_t *regex, const char *pattern, const char *source, date_t *date, int month);
+int searchDm(regex_t *regex, const char *pattern, const char *source, date_t *date, int month);
+int searchmD(regex_t *regex, const char *pattern, const char *source, date_t *date, int month);
 int searchDMY(regex_t *regex, const char *pattern, const char *source, date_t *date);
 int searchYMD(regex_t *regex, const char *pattern, const char *source, date_t *date);
 int searchMD(regex_t *regex, const char *pattern, const char *source, date_t *date);
