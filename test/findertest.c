@@ -40,52 +40,173 @@ void one_input_test(int argc, char **argv) {
 }
 
 void no_input_test() {
+    test_finder(DATE_UNKNOWN, "0000-00-00", "void");
+    test_finder(DATE_UNKNOWN, "0000-00-00", "void.png");
+    test_finder(DATE_UNKNOWN, "0000-00-00", "void.tar.gz");
 
-    // TODO: one digit numbers to test and nothing strings
+    spread_finder_input(DATE_UNKNOWN, "0000-00-00", "12312");
+    spread_finder_input(DATE_UNKNOWN, "0000-00-00", "1231212");
+    spread_finder_input(DATE_UNKNOWN, "0000-00-00", "123");
 
+    spread_finder_input(DATE_UNSURE, "2024-01-02", "4january2");
     spread_finder_input(DATE_UNSURE, "2024-04-22", "240422");
+
+    spread_finder_input(DATE_UNSURE, "2024-04-22", "24 04 22");
+    spread_finder_input(DATE_FOUND, "2024-04-02", "24 04 2");
+    spread_finder_input(DATE_UNSURE, "2024-04-22", "24 4 22");
+    spread_finder_input(DATE_FOUND, "2024-04-02", "24 4 2");
+
+    spread_finder_input(DATE_FOUND, "2022-04-02", "2 04 22");
+    spread_finder_input(DATE_FOUND, "2022-04-02", "2 4 22");
+
+    spread_finder_input(DATE_UNSURE, "2024-04-22", "24-04-22");
+
+    spread_finder_input(DATE_FOUND, "2032-04-22", "320422");
     spread_finder_input(DATE_FOUND, "2024-04-22", "22042024");
+
     spread_finder_input(DATE_FOUND, "2032-04-22", "22 04 32");
+    spread_finder_input(DATE_FOUND, "2032-04-02", "2 04 32");
+    spread_finder_input(DATE_FOUND, "2032-04-22", "22 4 32");
+    spread_finder_input(DATE_FOUND, "2032-04-02", "2 4 32");
+
     spread_finder_input(DATE_FOUND, "2032-04-22", "22-04-32");
+    spread_finder_input(DATE_FOUND, "2032-04-02", "2-04-32");
+    spread_finder_input(DATE_FOUND, "2032-04-22", "22-4-32");
+    spread_finder_input(DATE_FOUND, "2032-04-02", "2-4-32");
+
     spread_finder_input(DATE_FOUND, "2024-04-22", "22 04 2024");
+    spread_finder_input(DATE_FOUND, "2024-04-02", "2 04 2024");
+    spread_finder_input(DATE_FOUND, "2024-04-22", "22 4 2024");
+    spread_finder_input(DATE_FOUND, "2024-04-02", "2 4 2024");
+
     spread_finder_input(DATE_FOUND, "2024-04-22", "22-04-2024");
+    spread_finder_input(DATE_FOUND, "2024-04-02", "2-04-2024");
+    spread_finder_input(DATE_FOUND, "2024-04-22", "22-4-2024");
+    spread_finder_input(DATE_FOUND, "2024-04-02", "2-4-2024");
 
     spread_finder_input(DATE_FOUND, "2032-04-22", "220432");
     spread_finder_input(DATE_FOUND, "2024-04-22", "20240422");
+
     spread_finder_input(DATE_FOUND, "2032-04-22", "32 04 22");
+    spread_finder_input(DATE_FOUND, "2032-04-02", "32 04 2");
+    spread_finder_input(DATE_FOUND, "2032-04-22", "32 4 22");
+    spread_finder_input(DATE_FOUND, "2032-04-02", "32 4 2");
+
     spread_finder_input(DATE_FOUND, "2032-04-22", "32-04-22");
+    spread_finder_input(DATE_FOUND, "2032-04-02", "32-04-2");
+    spread_finder_input(DATE_FOUND, "2032-04-22", "32-4-22");
+    spread_finder_input(DATE_FOUND, "2032-04-02", "32-4-2");
+
     spread_finder_input(DATE_FOUND, "2024-04-22", "2024 04 22");
+    spread_finder_input(DATE_FOUND, "2024-04-02", "2024 04 2");
+    spread_finder_input(DATE_FOUND, "2024-04-22", "2024 4 22");
+    spread_finder_input(DATE_FOUND, "2024-04-02", "2024 4 2");
+
     spread_finder_input(DATE_FOUND, "2024-04-22", "2024-04-22");
+    spread_finder_input(DATE_FOUND, "2024-04-02", "2024-04-2");
+    spread_finder_input(DATE_FOUND, "2024-04-22", "2024-4-22");
+    spread_finder_input(DATE_FOUND, "2024-04-02", "2024-4-2");
 
     spread_finder_input(DATE_FOUND, "2024-04-22", "0422");
     spread_finder_input(DATE_FOUND, "2024-04-22", "2204");
+
     spread_finder_input(DATE_FOUND, "2024-04-22", "04 22");
+    spread_finder_input(DATE_FOUND, "2024-04-22", "4 22");
+    spread_finder_input(DATE_UNSURE, "2024-04-02", "4 2");
+
     spread_finder_input(DATE_FOUND, "2024-04-22", "04-22");
+    spread_finder_input(DATE_FOUND, "2024-04-22", "4-22");
+    spread_finder_input(DATE_UNSURE, "2024-04-02", "4-2");
+
     spread_finder_input(DATE_FOUND, "2024-04-22", "22 04");
+    spread_finder_input(DATE_FOUND, "2024-04-22", "22 4");
     spread_finder_input(DATE_FOUND, "2024-04-22", "22-04");
+    spread_finder_input(DATE_FOUND, "2024-04-22", "22-4");
 
     // Now literal months
 
     spread_finder_input(DATE_UNSURE, "2024-01-22", "24january22");
+    spread_finder_input(DATE_FOUND, "2022-01-02", "2january22");
+    spread_finder_input(DATE_FOUND, "2024-01-02", "24january2");
+
     spread_finder_input(DATE_FOUND, "2024-02-22", "22feb2024");
+    spread_finder_input(DATE_FOUND, "2024-02-02", "2feb2024");
+
+    spread_finder_input(DATE_UNSURE, "2022-03-24", "22 Marzo 24");
     spread_finder_input(DATE_FOUND, "2032-03-22", "22 Marzo 32");
+    spread_finder_input(DATE_FOUND, "2024-03-02", "2 Marzo 24");
+
     spread_finder_input(DATE_FOUND, "2032-04-22", "22-apr-32");
+    spread_finder_input(DATE_FOUND, "2032-04-02", "2-apr-32");
     spread_finder_input(DATE_FOUND, "2024-05-22", "22 may 2024");
+    spread_finder_input(DATE_FOUND, "2024-05-02", "2 may 2024");
     spread_finder_input(DATE_FOUND, "2024-06-22", "22-JUN-2024");
+    spread_finder_input(DATE_FOUND, "2024-06-02", "2-JUN-2024");
 
     spread_finder_input(DATE_FOUND, "2032-07-22", "22luglio32");
+    spread_finder_input(DATE_FOUND, "2032-07-02", "2luglio32");
     spread_finder_input(DATE_FOUND, "2024-08-22", "2024ago22");
+    spread_finder_input(DATE_FOUND, "2024-08-02", "2024ago2");
     spread_finder_input(DATE_FOUND, "2032-09-22", "32 September 22");
+    spread_finder_input(DATE_FOUND, "2032-09-02", "32 September 2");
     spread_finder_input(DATE_FOUND, "2032-10-22", "32-oct-22");
+    spread_finder_input(DATE_FOUND, "2032-10-02", "32-oct-2");
     spread_finder_input(DATE_FOUND, "2024-11-22", "2024 novembre 22");
+    spread_finder_input(DATE_FOUND, "2024-11-02", "2024 novembre 2");
     spread_finder_input(DATE_FOUND, "2024-12-22", "2024-DIC-22");
+    spread_finder_input(DATE_FOUND, "2024-12-02", "2024-DIC-2");
 
     spread_finder_input(DATE_FOUND, "2024-01-22", "gen22");
+    spread_finder_input(DATE_FOUND, "2024-01-02", "gen2");
     spread_finder_input(DATE_FOUND, "2024-02-22", "22febbraio");
+    spread_finder_input(DATE_FOUND, "2024-02-02", "2febbraio");
     spread_finder_input(DATE_FOUND, "2024-03-22", "Mar 22");
+    spread_finder_input(DATE_FOUND, "2024-03-02", "Mar 2");
     spread_finder_input(DATE_FOUND, "2024-04-22", "april-22");
+    spread_finder_input(DATE_FOUND, "2024-04-02", "april-2");
     spread_finder_input(DATE_FOUND, "2024-05-22", "22 MAG");
+    spread_finder_input(DATE_FOUND, "2024-05-02", "2 MAG");
     spread_finder_input(DATE_FOUND, "2024-06-22", "22-giugno");
+    spread_finder_input(DATE_FOUND, "2024-06-02", "2-giugno");
+
+    // Not this year (2024)
+
+    spread_finder_input(DATE_FOUND, "2025-11-22", "2025 novembre 22");
+    spread_finder_input(DATE_FOUND, "2025-11-02", "2025 novembre 2");
+    spread_finder_input(DATE_FOUND, "2025-12-22", "2025-DIC-22");
+    spread_finder_input(DATE_FOUND, "2025-12-02", "2025-DIC-2");
+    spread_finder_input(DATE_FOUND, "2025-08-22", "2025ago22");
+    spread_finder_input(DATE_FOUND, "2025-08-02", "2025ago2");
+    spread_finder_input(DATE_FOUND, "2025-05-22", "22 may 2025");
+    spread_finder_input(DATE_FOUND, "2025-05-02", "2 may 2025");
+    spread_finder_input(DATE_FOUND, "2025-06-22", "22-JUN-2025");
+    spread_finder_input(DATE_FOUND, "2025-06-02", "2-JUN-2025");
+    spread_finder_input(DATE_FOUND, "2025-02-22", "22feb2025");
+    spread_finder_input(DATE_FOUND, "2025-02-02", "2feb2025");
+    spread_finder_input(DATE_FOUND, "2025-04-22", "2025 04 22");
+    spread_finder_input(DATE_FOUND, "2025-04-02", "2025 04 2");
+    spread_finder_input(DATE_FOUND, "2025-04-22", "2025 4 22");
+    spread_finder_input(DATE_FOUND, "2025-04-02", "2025 4 2");
+    spread_finder_input(DATE_FOUND, "2025-04-22", "2025-04-22");
+    spread_finder_input(DATE_FOUND, "2025-04-02", "2025-04-2");
+    spread_finder_input(DATE_FOUND, "2025-04-22", "2025-4-22");
+    spread_finder_input(DATE_FOUND, "2025-04-02", "2025-4-2");
+    spread_finder_input(DATE_FOUND, "2025-04-22", "20250422");
+    spread_finder_input(DATE_FOUND, "2025-04-22", "22 04 2025");
+    spread_finder_input(DATE_FOUND, "2025-04-02", "2 04 2025");
+    spread_finder_input(DATE_FOUND, "2025-04-22", "22 4 2025");
+    spread_finder_input(DATE_FOUND, "2025-04-02", "2 4 2025");
+    spread_finder_input(DATE_FOUND, "2025-04-22", "22-04-2025");
+    spread_finder_input(DATE_FOUND, "2025-04-02", "2-04-2025");
+    spread_finder_input(DATE_FOUND, "2025-04-22", "22-4-2025");
+    spread_finder_input(DATE_FOUND, "2025-04-02", "2-4-2025");
+    spread_finder_input(DATE_FOUND, "2025-04-22", "22042025");
+    spread_finder_input(DATE_UNSURE, "2025-04-22", "25-04-22");
+    spread_finder_input(DATE_UNSURE, "2025-04-22", "250422");
+    spread_finder_input(DATE_UNSURE, "2025-04-22", "25 04 22");
+    spread_finder_input(DATE_FOUND, "2025-04-02", "25 04 2");
+    spread_finder_input(DATE_UNSURE, "2025-04-22", "25 4 22");
+    spread_finder_input(DATE_FOUND, "2025-04-02", "25 4 2");
 
     printf("\nTest passed: %d/%d", test_passed, test_number);
 }
