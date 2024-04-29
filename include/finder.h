@@ -33,4 +33,6 @@ int searchYMD(regex_t *regex, const char *pattern, const char *source, date_t *d
 int searchMD(regex_t *regex, const char *pattern, const char *source, date_t *date);
 int searchDM(regex_t *regex, const char *pattern, const char *source, date_t *date);
 
+int check_date(const date_t *date);
+
 #endif //TIME_TRAVEL_FINDER_H

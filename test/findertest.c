@@ -44,6 +44,9 @@ void no_input_test() {
     test_finder(DATE_UNKNOWN, "0000-00-00", "void.png");
     test_finder(DATE_UNKNOWN, "0000-00-00", "void.tar.gz");
 
+    spread_finder_input(DATE_FOUND, "2024-02-29", "29 feb 2024");
+    spread_finder_input(DATE_UNKNOWN, "0000-00-00", "31 apr 2023");
+
     spread_finder_input(DATE_UNKNOWN, "0000-00-00", "12312");
     spread_finder_input(DATE_UNKNOWN, "0000-00-00", "1231212");
     spread_finder_input(DATE_UNKNOWN, "0000-00-00", "123");

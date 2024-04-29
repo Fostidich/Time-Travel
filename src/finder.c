@@ -214,8 +214,8 @@ int searchDmY(regex_t *regex, const char *pattern, const char *source, date_t *d
     temp_date.year = atoi(temp); // NOLINT(*-err34-c)
 
     if (temp_date.year < 100) temp_date.year += 2000;
-    if (temp_date.day > 31 || temp_date.year > 2099 || temp_date.year < 2000) return 0;
     temp_date.month = month;
+    if (!check_date(&temp_date)) return 0;
     memcpy(date, &temp_date, sizeof(date_t));
     return 1;
 #undef CAPTURES
@@ -236,8 +236,8 @@ int searchYmD(regex_t *regex, const char *pattern, const char *source, date_t *d
     temp_date.day = atoi(temp); // NOLINT(*-err34-c)
 
     if (temp_date.year < 100) temp_date.year += 2000;
-    if (temp_date.day > 31 || temp_date.year > 2099 || temp_date.year < 2000) return 0;
     temp_date.month = month;
+    if (!check_date(&temp_date)) return 0;
     memcpy(date, &temp_date, sizeof(date_t));
     return 1;
 #undef CAPTURES
@@ -255,12 +255,12 @@ int searchDm(regex_t *regex, const char *pattern, const char *source, date_t *da
     sprintf(temp, "%.*s", matches[1].rm_eo - matches[1].rm_so, source + matches[1].rm_so);
     temp_date.day = atoi(temp); // NOLINT(*-err34-c)
 
-    if (temp_date.day > 31) return 0;
     time_t current_time;
     time(&current_time);
     struct tm *local_time = localtime(&current_time);
     temp_date.year = local_time->tm_year + 1900;
     temp_date.month = month;
+    if (!check_date(&temp_date)) return 0;
     memcpy(date, &temp_date, sizeof(date_t));
     return 1;
 #undef CAPTURES
@@ -278,12 +278,12 @@ int searchmD(regex_t *regex, const char *pattern, const char *source, date_t *da
     sprintf(temp, "%.*s", matches[1].rm_eo - matches[1].rm_so, source + matches[1].rm_so);
     temp_date.day = atoi(temp); // NOLINT(*-err34-c)
 
-    if (temp_date.day > 31) return 0;
     time_t current_time;
     time(&current_time);
     struct tm *local_time = localtime(&current_time);
     temp_date.year = local_time->tm_year + 1900;
     temp_date.month = month;
+    if (!check_date(&temp_date)) return 0;
     memcpy(date, &temp_date, sizeof(date_t));
     return 1;
 #undef CAPTURES
@@ -306,7 +306,7 @@ int searchDMY(regex_t *regex, const char *pattern, const char *source, date_t *d
     temp_date.year = atoi(temp); // NOLINT(*-err34-c)
 
     if (temp_date.year < 100) temp_date.year += 2000;
-    if (temp_date.day > 31 || temp_date.month > 12 || temp_date.year > 2099 || temp_date.year < 2000) return 0;
+    if (!check_date(&temp_date)) return 0;
     memcpy(date, &temp_date, sizeof(date_t));
     return 1;
 #undef CAPTURES
@@ -329,7 +329,7 @@ int searchYMD(regex_t *regex, const char *pattern, const char *source, date_t *d
     temp_date.day = atoi(temp); // NOLINT(*-err34-c)
 
     if (temp_date.year < 100) temp_date.year += 2000;
-    if (temp_date.day > 31 || temp_date.month > 12 || temp_date.year > 2099 || temp_date.year < 2000) return 0;
+    if (!check_date(&temp_date)) return 0;
     memcpy(date, &temp_date, sizeof(date_t));
     return 1;
 #undef CAPTURES
@@ -349,11 +349,11 @@ int searchMD(regex_t *regex, const char *pattern, const char *source, date_t *da
     sprintf(temp, "%.*s", matches[2].rm_eo - matches[2].rm_so, source + matches[2].rm_so);
     temp_date.day = atoi(temp); // NOLINT(*-err34-c)
 
-    if (temp_date.day > 31 || temp_date.month > 12) return 0;
     time_t current_time;
     time(&current_time);
     struct tm *local_time = localtime(&current_time);
     temp_date.year = local_time->tm_year + 1900;
+    if (!check_date(&temp_date)) return 0;
     memcpy(date, &temp_date, sizeof(date_t));
     return 1;
 #undef CAPTURES
@@ -373,14 +373,26 @@ int searchDM(regex_t *regex, const char *pattern, const char *source, date_t *da
     sprintf(temp, "%.*s", matches[2].rm_eo - matches[2].rm_so, source + matches[2].rm_so);
     temp_date.month = atoi(temp); // NOLINT(*-err34-c)
 
-    if (temp_date.day > 31 || temp_date.month > 12) return 0;
     time_t current_time;
     time(&current_time);
     struct tm *local_time = localtime(&current_time);
     temp_date.year = local_time->tm_year + 1900;
+    if (!check_date(&temp_date)) return 0;
     memcpy(date, &temp_date, sizeof(date_t));
     return 1;
 #undef CAPTURES
+}
+
+int check_date(const date_t *date) {
+    if (date->year < 2000 || date->year > 2099) return 0;
+    if (date->month > 12) return 0;
+    if (date->day > 31) return 0;
+
+    if (date->month == 2 && date->year % 4 == 0 && date->day > 29) return 0;
+    if (date->month == 2 && date->year % 4 != 0 && date->day > 28) return 0;
+    if ((date->month == 4 || date->month == 6 || date->month == 9 || date->month == 11) && date->day > 30) return 0;
+
+    return 1;
 }
 
 /*
