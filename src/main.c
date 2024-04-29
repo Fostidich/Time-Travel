@@ -36,48 +36,48 @@ int main(int argc, char **argv)
         exit(1);
     }
 
-    printf("Analyzing filenames in %s\n\n", path);
+    printf("Analyzing lc_filenames in %s\n\n", path);
     long changed = 0;
     while ((entry = readdir(dir)) != NULL) {
         if (entry->d_type != DT_REG || entry->d_name[0] == '.')
             continue;
 
-        size_t filename_length = strnlen(entry->d_name, sizeof(entry->d_name) - 1);
-        char filename[filename_length + 16];
-        strncpy(filename, entry->d_name, filename_length);
-        filename[filename_length] = '\0';
-        if (filename_length == sizeof(entry->d_name) - 1) {
-            printf("%sERROR: file name is too long -> %s...%s\n", RED, filename, WHITE);
+        size_t lc_filename_length = strnlen(entry->d_name, sizeof(entry->d_name) - 1);
+        char lc_filename[lc_filename_length + 16];
+        strncpy(lc_filename, entry->d_name, lc_filename_length);
+        lc_filename[lc_filename_length] = '\0';
+        if (lc_filename_length == sizeof(entry->d_name) - 1) {
+            printf("%sERROR: file name is too long -> %s...%s\n", RED, lc_filename, WHITE);
             continue;
         }
 
-        char *first_dot = strchr(filename, '.');
+        char *first_dot = strchr(lc_filename, '.');
         size_t extension_length = 1;
         char extension[sizeof(entry->d_name) - 2];
         extension[0] = '\0';
-        if (first_dot != NULL && first_dot != filename + filename_length - 1) {
-            extension_length = filename + filename_length - first_dot + 1;
+        if (first_dot != NULL && first_dot != lc_filename + lc_filename_length - 1) {
+            extension_length = lc_filename + lc_filename_length - first_dot + 1;
             strcpy(extension, first_dot);
             *first_dot = '\0';
         }
 
         char new_name[DATE_LEN + extension_length + 16];
-        const int outcome = find_date(new_name, filename);
+        const int outcome = find_date(new_name, lc_filename);
         if (extension[0] != '\0') strcpy(first_dot, extension);
         strcpy(new_name + DATE_LEN, extension);
 
         if (outcome == DATE_UNKNOWN) {
-            printf("%sUNKNOWN DATE: %s%s\n", RED, filename, WHITE);
+            printf("%sUNKNOWN DATE: %s%s\n", RED, lc_filename, WHITE);
             continue;
         }
 
-        if (strcmp(new_name, filename) == 0) {
-            printf("%s%s -> %s%s\n", GREY, filename, new_name, WHITE);
+        if (strcmp(new_name, lc_filename) == 0) {
+            printf("%s%s -> %s%s\n", GREY, lc_filename, new_name, WHITE);
             continue;
         }
 
         char old_path[PATH_MAX], new_path[PATH_MAX];
-        snprintf(old_path, PATH_MAX, "%s/%s", path, filename);
+        snprintf(old_path, PATH_MAX, "%s/%s", path, lc_filename);
         snprintf(new_path, PATH_MAX, "%s/%s", path, new_name);
         if (access(new_path, F_OK) == 0) {
             int duplicates = 1;
@@ -92,14 +92,14 @@ int main(int argc, char **argv)
         }
 
         if (rename(old_path, new_path) != 0) {
-            printf("%sERROR: unable to rename -> %s%s\n", RED, filename, WHITE);
+            printf("%sERROR: unable to rename -> %s%s\n", RED, lc_filename, WHITE);
             continue;
         }
 
         changed++;
         outcome == DATE_UNSURE ?
-        printf("%s%s -> %s%s\n", YELLOW, filename, new_name, WHITE) :
-        printf("%s -> %s\n", filename, new_name);
+        printf("%s%s -> %s%s\n", YELLOW, lc_filename, new_name, WHITE) :
+        printf("%s -> %s\n", lc_filename, new_name);
     }
 
     if (changed == 0) {

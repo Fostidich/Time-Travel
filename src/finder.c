@@ -14,89 +14,89 @@
 
 // TODO Surely these macros are tautological
 
-#define DmY(pat) for (int i = 0; i < 12; i++) { \
-                    for (int j = 0; j < MONTH_LANG; j++) { \
-                        sprintf(temp, "^" pat "$" , months[i][j]); \
-                        found += searchDmY(regex, temp, filename, date, i + 1);} \
-                    if (found > 0) break;}      \
-                for (int i = 0; i < 12; i++) { \
-                    for (int j = 0; j < MONTH_LANG; j++) { \
-                        sprintf(temp, "^" pat "[^[:digit:]]", months[i][j]); \
-                        found += searchDmY(regex, temp, filename, date, i + 1);} \
-                    if (found > 0) break;}      \
-                for (int i = 0; i < 12; i++) { \
-                    for (int j = 0; j < MONTH_LANG; j++) { \
-                        sprintf(temp, "[^[:digit:]]" pat "$", months[i][j]); \
-                        found += searchDmY(regex, temp, filename, date, i + 1);} \
+#define DmY(pat) for (int i = 0; i < MONTH_LANG; i++) { \
+                    for (int j = 0; j < 12; j++) { \
+                        sprintf(temp, "^" pat "$" , months[j][i]); \
+                        found += searchDmY(regex, temp, lc_filename, date, j + 1);} \
                     if (found > 0) break;} \
-                for (int i = 0; i < 12; i++) { \
-                    for (int j = 0; j < MONTH_LANG; j++) { \
-                        sprintf(temp, "[^[:digit:]]" pat "[^[:digit:]]", months[i][j]); \
-                        found += searchDmY(regex, temp, filename, date, i + 1);} \
-                    if (found > 0) break;}
-
-#define YmD(pat) for (int i = 0; i < 12; i++) { \
-                    for (int j = 0; j < MONTH_LANG; j++) { \
-                        sprintf(temp, "^" pat "$" , months[i][j]); \
-                        found += searchYmD(regex, temp, filename, date, i + 1);} \
-                    if (found > 0) break;}      \
-                for (int i = 0; i < 12; i++) { \
-                    for (int j = 0; j < MONTH_LANG; j++) { \
-                        sprintf(temp, "^" pat "[^[:digit:]]", months[i][j]); \
-                        found += searchYmD(regex, temp, filename, date, i + 1);} \
-                    if (found > 0) break;}      \
-                for (int i = 0; i < 12; i++) { \
-                    for (int j = 0; j < MONTH_LANG; j++) { \
-                        sprintf(temp, "[^[:digit:]]" pat "$", months[i][j]); \
-                        found += searchYmD(regex, temp, filename, date, i + 1);} \
+                for (int i = 0; i < MONTH_LANG; i++) { \
+                    for (int j = 0; j < 12; j++) { \
+                        sprintf(temp, "^" pat "[^[:digit:]]", months[j][i]); \
+                        found += searchDmY(regex, temp, lc_filename, date, j + 1);} \
                     if (found > 0) break;} \
-                for (int i = 0; i < 12; i++) { \
-                    for (int j = 0; j < MONTH_LANG; j++) { \
-                        sprintf(temp, "[^[:digit:]]" pat "[^[:digit:]]", months[i][j]); \
-                        found += searchYmD(regex, temp, filename, date, i + 1);} \
-                    if (found > 0) break;}
-
-#define Dm(pat) for (int i = 0; i < 12; i++) { \
-                    for (int j = 0; j < MONTH_LANG; j++) { \
-                        sprintf(temp, "^" pat, months[i][j]); \
-                        found += searchDm(regex, temp, filename, date, i + 1);} \
-                    if (found > 0) break;}      \
-                for (int i = 0; i < 12; i++) { \
-                    for (int j = 0; j < MONTH_LANG; j++) { \
-                        sprintf(temp, "[^[:digit:]]" pat, months[i][j]); \
-                        found += searchDm(regex, temp, filename, date, i + 1);} \
-                    if (found > 0) break;}
-
-#define mD(pat) for (int i = 0; i < 12; i++) { \
-                    for (int j = 0; j < MONTH_LANG; j++) { \
-                        sprintf(temp, pat "$" , months[i][j]); \
-                        found += searchmD(regex, temp, filename, date, i + 1);} \
+                for (int i = 0; i < MONTH_LANG; i++) { \
+                    for (int j = 0; j < 12; j++) { \
+                        sprintf(temp, "[^[:digit:]]" pat "$", months[j][i]); \
+                        found += searchDmY(regex, temp, lc_filename, date, j + 1);} \
                     if (found > 0) break;} \
-                for (int i = 0; i < 12; i++) { \
-                    for (int j = 0; j < MONTH_LANG; j++) { \
-                        sprintf(temp, pat "[^[:digit:]]", months[i][j]); \
-                        found += searchmD(regex, temp, filename, date, i + 1);} \
+                for (int i = 0; i < MONTH_LANG; i++) { \
+                    for (int j = 0; j < 12; j++) { \
+                        sprintf(temp, "[^[:digit:]]" pat "[^[:digit:]]", months[j][i]); \
+                        found += searchDmY(regex, temp, lc_filename, date, j + 1);} \
                     if (found > 0) break;}
 
-#define DMY(str) found += searchDMY(regex, "^" str "$", filename, date); \
-                found += searchDMY(regex, "^" str "[^[:digit:]]", filename, date); \
-                found += searchDMY(regex, "[^[:digit:]]" str "$", filename, date); \
-                found += searchDMY(regex, "[^[:digit:]]" str "[^[:digit:]]", filename, date);
+#define YmD(pat) for (int i = 0; i < MONTH_LANG; i++) { \
+                    for (int j = 0; j < 12; j++) { \
+                        sprintf(temp, "^" pat "$" , months[j][i]); \
+                        found += searchYmD(regex, temp, lc_filename, date, j + 1);} \
+                    if (found > 0) break;} \
+                for (int i = 0; i < MONTH_LANG; i++) { \
+                    for (int j = 0; j < 12; j++) { \
+                        sprintf(temp, "^" pat "[^[:digit:]]", months[j][i]); \
+                        found += searchYmD(regex, temp, lc_filename, date, j + 1);} \
+                    if (found > 0) break;} \
+                for (int i = 0; i < MONTH_LANG; i++) { \
+                    for (int j = 0; j < 12; j++) { \
+                        sprintf(temp, "[^[:digit:]]" pat "$", months[j][i]); \
+                        found += searchYmD(regex, temp, lc_filename, date, j + 1);} \
+                    if (found > 0) break;} \
+                for (int i = 0; i < MONTH_LANG; i++) { \
+                    for (int j = 0; j < 12; j++) { \
+                        sprintf(temp, "[^[:digit:]]" pat "[^[:digit:]]", months[j][i]); \
+                        found += searchYmD(regex, temp, lc_filename, date, j + 1);} \
+                    if (found > 0) break;}
 
-#define YMD(str) found += searchYMD(regex, "^" str "$", filename, date); \
-                found += searchYMD(regex, "^" str "[^[:digit:]]", filename, date); \
-                found += searchYMD(regex, "[^[:digit:]]" str "$", filename, date); \
-                found += searchYMD(regex, "[^[:digit:]]" str "[^[:digit:]]", filename, date);
+#define Dm(pat) for (int i = 0; i < MONTH_LANG; i++) { \
+                    for (int j = 0; j < 12; j++) { \
+                        sprintf(temp, "^" pat, months[j][i]); \
+                        found += searchDm(regex, temp, lc_filename, date, j + 1);} \
+                    if (found > 0) break;} \
+                for (int i = 0; i < MONTH_LANG; i++) { \
+                    for (int j = 0; j < 12; j++) { \
+                        sprintf(temp, "[^[:digit:]]" pat, months[j][i]); \
+                        found += searchDm(regex, temp, lc_filename, date, j + 1);} \
+                    if (found > 0) break;}
 
-#define DM(str) found += searchDM(regex, "^" str "$", filename, date); \
-                found += searchDM(regex, "^" str "[^[:digit:]]", filename, date); \
-                found += searchDM(regex, "[^[:digit:]]" str "$", filename, date); \
-                found += searchDM(regex, "[^[:digit:]]" str "[^[:digit:]]", filename, date);
+#define mD(pat) for (int i = 0; i < MONTH_LANG; i++) { \
+                    for (int j = 0; j < 12; j++) { \
+                        sprintf(temp, pat "$" , months[j][i]); \
+                        found += searchmD(regex, temp, lc_filename, date, j + 1);} \
+                    if (found > 0) break;} \
+                for (int i = 0; i < MONTH_LANG; i++) { \
+                    for (int j = 0; j < 12; j++) { \
+                        sprintf(temp, pat "[^[:digit:]]", months[j][i]); \
+                        found += searchmD(regex, temp, lc_filename, date, j + 1);} \
+                    if (found > 0) break;}
 
-#define MD(str) found += searchMD(regex, "^" str "$", filename, date); \
-                found += searchMD(regex, "^" str "[^[:digit:]]", filename, date); \
-                found += searchMD(regex, "[^[:digit:]]" str "$", filename, date); \
-                found += searchMD(regex, "[^[:digit:]]" str "[^[:digit:]]", filename, date);
+#define DMY(str) found += searchDMY(regex, "^" str "$", lc_filename, date); \
+                found += searchDMY(regex, "^" str "[^[:digit:]]", lc_filename, date); \
+                found += searchDMY(regex, "[^[:digit:]]" str "$", lc_filename, date); \
+                found += searchDMY(regex, "[^[:digit:]]" str "[^[:digit:]]", lc_filename, date);
+
+#define YMD(str) found += searchYMD(regex, "^" str "$", lc_filename, date); \
+                found += searchYMD(regex, "^" str "[^[:digit:]]", lc_filename, date); \
+                found += searchYMD(regex, "[^[:digit:]]" str "$", lc_filename, date); \
+                found += searchYMD(regex, "[^[:digit:]]" str "[^[:digit:]]", lc_filename, date);
+
+#define DM(str) found += searchDM(regex, "^" str "$", lc_filename, date); \
+                found += searchDM(regex, "^" str "[^[:digit:]]", lc_filename, date); \
+                found += searchDM(regex, "[^[:digit:]]" str "$", lc_filename, date); \
+                found += searchDM(regex, "[^[:digit:]]" str "[^[:digit:]]", lc_filename, date);
+
+#define MD(str) found += searchMD(regex, "^" str "$", lc_filename, date); \
+                found += searchMD(regex, "^" str "[^[:digit:]]", lc_filename, date); \
+                found += searchMD(regex, "[^[:digit:]]" str "$", lc_filename, date); \
+                found += searchMD(regex, "[^[:digit:]]" str "[^[:digit:]]", lc_filename, date);
 
 const char *months[12][MONTH_LANG] = {
         {"january",   "jan", "gennaio",   "gen"},
@@ -114,11 +114,14 @@ const char *months[12][MONTH_LANG] = {
 };
 
 int find_date(char *dest, const char *filename) {
-
-    // TODO: filename must be put lowercase!
-
     int found = 0;
     char temp[MAX_LEN];
+    char lc_filename[strlen(filename) + 1];
+
+    for (int i = 0; filename[i] != '\0'; i++)
+        lc_filename[i] = filename[i] >= 'A' && filename[i] <= 'Z' ? filename[i] + 32 : filename[i];
+    lc_filename[strlen(filename)] = '\0';
+
     regex_t *regex = malloc(sizeof(regex_t));
     regcomp(regex, "", 0);
     date_t *date = calloc(1, sizeof(date_t));
@@ -210,7 +213,7 @@ int searchDmY(regex_t *regex, const char *pattern, const char *source, date_t *d
     regmatch_t matches[CAPTURES + 1];
     char temp[12];
     date_t temp_date;
-    if (regcomp(regex, pattern, REG_EXTENDED) != 0) return 0;
+    if (regcomp(regex, pattern, REG_EXTENDED) != 0)  return 0;
     if (regexec(regex, source, CAPTURES + 1, matches, 0) != 0) return 0;
 
     sprintf(temp, "%.*s", matches[1].rm_eo - matches[1].rm_so, source + matches[1].rm_so);
@@ -219,7 +222,7 @@ int searchDmY(regex_t *regex, const char *pattern, const char *source, date_t *d
     temp_date.year = atoi(temp); // NOLINT(*-err34-c)
 
     if (temp_date.year < 100) temp_date.year += 2000;
-    if (temp_date.day > 31 || temp_date.month > 12 || temp_date.year > 2099 || temp_date.year < 2000) return 0;
+    if (temp_date.day > 31 || temp_date.year > 2099 || temp_date.year < 2000) return 0;
     temp_date.month = month;
     memcpy(date, &temp_date, sizeof(date_t));
     return 1;
@@ -241,7 +244,7 @@ int searchYmD(regex_t *regex, const char *pattern, const char *source, date_t *d
     temp_date.day = atoi(temp); // NOLINT(*-err34-c)
 
     if (temp_date.year < 100) temp_date.year += 2000;
-    if (temp_date.day > 31 || temp_date.month > 12 || temp_date.year > 2099 || temp_date.year < 2000) return 0;
+    if (temp_date.day > 31 || temp_date.year > 2099 || temp_date.year < 2000) return 0;
     temp_date.month = month;
     memcpy(date, &temp_date, sizeof(date_t));
     return 1;

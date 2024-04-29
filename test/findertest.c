@@ -36,10 +36,13 @@ void one_input_test(int argc, char **argv) {
         strcat(temp, argv[i]);
     }
     int res = find_date(dest, temp);
-    printf("%s: %s (%d)", temp, dest, res);
+    printf("|| %s -> %s (%d)", temp, dest, res);
 }
 
 void no_input_test() {
+
+    // TODO: one digit numbers to test and nothing strings
+
     spread_finder_input(DATE_UNSURE, "2024-04-22", "240422");
     spread_finder_input(DATE_FOUND, "2024-04-22", "22042024");
     spread_finder_input(DATE_FOUND, "2032-04-22", "22 04 32");
@@ -65,23 +68,23 @@ void no_input_test() {
 
     spread_finder_input(DATE_UNSURE, "2024-01-22", "24january22");
     spread_finder_input(DATE_FOUND, "2024-02-22", "22feb2024");
-    spread_finder_input(DATE_FOUND, "2032-03-22", "22 marzo 32");
+    spread_finder_input(DATE_FOUND, "2032-03-22", "22 Marzo 32");
     spread_finder_input(DATE_FOUND, "2032-04-22", "22-apr-32");
     spread_finder_input(DATE_FOUND, "2024-05-22", "22 may 2024");
-    spread_finder_input(DATE_FOUND, "2024-06-22", "22-jun-2024");
+    spread_finder_input(DATE_FOUND, "2024-06-22", "22-JUN-2024");
 
     spread_finder_input(DATE_FOUND, "2032-07-22", "22luglio32");
     spread_finder_input(DATE_FOUND, "2024-08-22", "2024ago22");
-    spread_finder_input(DATE_FOUND, "2032-09-22", "32 september 22");
+    spread_finder_input(DATE_FOUND, "2032-09-22", "32 September 22");
     spread_finder_input(DATE_FOUND, "2032-10-22", "32-oct-22");
     spread_finder_input(DATE_FOUND, "2024-11-22", "2024 novembre 22");
-    spread_finder_input(DATE_FOUND, "2024-12-22", "2024-dic-22");
+    spread_finder_input(DATE_FOUND, "2024-12-22", "2024-DIC-22");
 
     spread_finder_input(DATE_FOUND, "2024-01-22", "gen22");
     spread_finder_input(DATE_FOUND, "2024-02-22", "22febbraio");
-    spread_finder_input(DATE_FOUND, "2024-03-22", "mar 22");
+    spread_finder_input(DATE_FOUND, "2024-03-22", "Mar 22");
     spread_finder_input(DATE_FOUND, "2024-04-22", "april-22");
-    spread_finder_input(DATE_FOUND, "2024-05-22", "22 mag");
+    spread_finder_input(DATE_FOUND, "2024-05-22", "22 MAG");
     spread_finder_input(DATE_FOUND, "2024-06-22", "22-giugno");
 
     printf("\nTest passed: %d/%d", test_passed, test_number);

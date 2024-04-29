@@ -1,7 +1,7 @@
 # Time-Travel
 
 ## OVERVIEW
-Bring order to your folders by extracting dates from messy filenames.
+Bring order to your folders by extracting dates from messy lc_filenames.
 Files in the specified path are scanned, and if a date is detected in their names
 the file is renamed with YYYY-MM-DD format.
 Path can be either absolute or relative.
