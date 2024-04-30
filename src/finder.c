@@ -129,57 +129,57 @@ int find_date(char *dest, const char *filename) {
 
     // TODO These regexes could be definitely compacted and optimized using PCREv2 but as for now idc... \
             ...or does someone know how to use option groups, i.e. make "(?:a|b|c)" or "[a|b|c]" valid?
-    {
-        DmY("([[:digit:]]{1,2})%s([[:digit:]]{2})") // 21apr24
-        DmY("([[:digit:]]{1,2})%s20([[:digit:]]{2})") // 21apr2024
-        DmY("([[:digit:]]{1,2})[[:punct:]]%s[[:punct:]]([[:digit:]]{2})") // 21-apr-24
-        DmY("([[:digit:]]{1,2}) %s ([[:digit:]]{2})") // 21 apr 24
-        DmY("([[:digit:]]{1,2})[[:punct:]]%s[[:punct:]]20([[:digit:]]{2})") // 21-apr-2024
-        DmY("([[:digit:]]{1,2}) %s 20([[:digit:]]{2})") // 21 apr 2024
 
-        YmD("([[:digit:]]{2})%s([[:digit:]]{1,2})") // 24apr21
-        YmD("20([[:digit:]]{2})%s([[:digit:]]{1,2})") // 2024apr21
-        YmD("([[:digit:]]{2})[[:punct:]]%s[[:punct:]]([[:digit:]]{1,2})") // 24-apr-21
-        YmD("([[:digit:]]{2}) %s ([[:digit:]]{1,2})") // 24 apr 21
-        YmD("20([[:digit:]]{2})[[:punct:]]%s[[:punct:]]([[:digit:]]{1,2})") // 2024-apr-21
-        YmD("20([[:digit:]]{2}) %s ([[:digit:]]{1,2})") // 2024 apr 21
-    }
+    DmY("([[:digit:]]{1,2})%s([[:digit:]]{2})") // 21apr24
+    DmY("([[:digit:]]{1,2})%s20([[:digit:]]{2})") // 21apr2024
+    DmY("([[:digit:]]{1,2})[[:punct:]]%s[[:punct:]]([[:digit:]]{2})") // 21-apr-24
+    DmY("([[:digit:]]{1,2}) %s ([[:digit:]]{2})") // 21 apr 24
+    DmY("([[:digit:]]{1,2})[[:punct:]]%s[[:punct:]]20([[:digit:]]{2})") // 21-apr-2024
+    DmY("([[:digit:]]{1,2}) %s 20([[:digit:]]{2})") // 21 apr 2024
+
+    YmD("([[:digit:]]{2})%s([[:digit:]]{1,2})") // 24apr21
+    YmD("20([[:digit:]]{2})%s([[:digit:]]{1,2})") // 2024apr21
+    YmD("([[:digit:]]{2})[[:punct:]]%s[[:punct:]]([[:digit:]]{1,2})") // 24-apr-21
+    YmD("([[:digit:]]{2}) %s ([[:digit:]]{1,2})") // 24 apr 21
+    YmD("20([[:digit:]]{2})[[:punct:]]%s[[:punct:]]([[:digit:]]{1,2})") // 2024-apr-21
+    YmD("20([[:digit:]]{2}) %s ([[:digit:]]{1,2})") // 2024 apr 21
+
     if (found > 0) goto FINISH;
-    {
-        Dm("([[:digit:]]{1,2})%s") // 22apr
-        Dm("([[:digit:]]{1,2})[[:punct:]]%s") // 22-apr
-        Dm("([[:digit:]]{1,2}) %s") // 22 apr
 
-        mD("%s([[:digit:]]{1,2})") // apr22
-        mD("%s[[:punct:]]([[:digit:]]{1,2})") // apr-22
-        mD("%s ([[:digit:]]{1,2})") // apr 22
-    }
+    Dm("([[:digit:]]{1,2})%s") // 22apr
+    Dm("([[:digit:]]{1,2})[[:punct:]]%s") // 22-apr
+    Dm("([[:digit:]]{1,2}) %s") // 22 apr
+
+    mD("%s([[:digit:]]{1,2})") // apr22
+    mD("%s[[:punct:]]([[:digit:]]{1,2})") // apr-22
+    mD("%s ([[:digit:]]{1,2})") // apr 22
+
     if (found > 0) goto FINISH;
-    {
-        DMY("([[:digit:]]{2})([[:digit:]]{2})([[:digit:]]{2})") // 210424
-        DMY("([[:digit:]]{2})([[:digit:]]{2})20([[:digit:]]{2})") // 21042024
-        DMY("([[:digit:]]{1,2})[[:punct:]]([[:digit:]]{1,2})[[:punct:]]([[:digit:]]{2})") // 21-04-24
-        DMY("([[:digit:]]{1,2}) ([[:digit:]]{1,2}) ([[:digit:]]{2})") // 21 04 24
-        DMY("([[:digit:]]{1,2})[[:punct:]]([[:digit:]]{1,2})[[:punct:]]20([[:digit:]]{2})") // 21-04-2024
-        DMY("([[:digit:]]{1,2}) ([[:digit:]]{1,2}) 20([[:digit:]]{2})") // 21 04 2024
 
-        YMD("([[:digit:]]{2})([[:digit:]]{2})([[:digit:]]{2})") // 240421
-        YMD("20([[:digit:]]{2})([[:digit:]]{2})([[:digit:]]{2})") // 20240421
-        YMD("([[:digit:]]{2})[[:punct:]]([[:digit:]]{1,2})[[:punct:]]([[:digit:]]{1,2})") // 24-04-21
-        YMD("([[:digit:]]{2}) ([[:digit:]]{1,2}) ([[:digit:]]{1,2})") // 24 04 21
-        YMD("20([[:digit:]]{2})[[:punct:]]([[:digit:]]{1,2})[[:punct:]]([[:digit:]]{1,2})") // 2024-04-21
-        YMD("20([[:digit:]]{2}) ([[:digit:]]{1,2}) ([[:digit:]]{1,2})") // 2024 04 21
-    }
+    DMY("([[:digit:]]{2})([[:digit:]]{2})([[:digit:]]{2})") // 210424
+    DMY("([[:digit:]]{2})([[:digit:]]{2})20([[:digit:]]{2})") // 21042024
+    DMY("([[:digit:]]{1,2})[[:punct:]]([[:digit:]]{1,2})[[:punct:]]([[:digit:]]{2})") // 21-04-24
+    DMY("([[:digit:]]{1,2}) ([[:digit:]]{1,2}) ([[:digit:]]{2})") // 21 04 24
+    DMY("([[:digit:]]{1,2})[[:punct:]]([[:digit:]]{1,2})[[:punct:]]20([[:digit:]]{2})") // 21-04-2024
+    DMY("([[:digit:]]{1,2}) ([[:digit:]]{1,2}) 20([[:digit:]]{2})") // 21 04 2024
+
+    YMD("([[:digit:]]{2})([[:digit:]]{2})([[:digit:]]{2})") // 240421
+    YMD("20([[:digit:]]{2})([[:digit:]]{2})([[:digit:]]{2})") // 20240421
+    YMD("([[:digit:]]{2})[[:punct:]]([[:digit:]]{1,2})[[:punct:]]([[:digit:]]{1,2})") // 24-04-21
+    YMD("([[:digit:]]{2}) ([[:digit:]]{1,2}) ([[:digit:]]{1,2})") // 24 04 21
+    YMD("20([[:digit:]]{2})[[:punct:]]([[:digit:]]{1,2})[[:punct:]]([[:digit:]]{1,2})") // 2024-04-21
+    YMD("20([[:digit:]]{2}) ([[:digit:]]{1,2}) ([[:digit:]]{1,2})") // 2024 04 21
+
     if (found > 0) goto FINISH;
-    {
-        DM("([[:digit:]]{2})([[:digit:]]{2})") // 2204
-        DM("([[:digit:]]{1,2})[[:punct:]]([[:digit:]]{1,2})") // 22-04
-        DM("([[:digit:]]{1,2}) ([[:digit:]]{1,2})") // 22 04
 
-        MD("([[:digit:]]{2})([[:digit:]]{2})") // 0422
-        MD("([[:digit:]]{1,2})[[:punct:]]([[:digit:]]{1,2})") // 04-22
-        MD("([[:digit:]]{1,2}) ([[:digit:]]{1,2})") // 04 22
-    }
+    DM("([[:digit:]]{2})([[:digit:]]{2})") // 2204
+    DM("([[:digit:]]{1,2})[[:punct:]]([[:digit:]]{1,2})") // 22-04
+    DM("([[:digit:]]{1,2}) ([[:digit:]]{1,2})") // 22 04
+
+    MD("([[:digit:]]{2})([[:digit:]]{2})") // 0422
+    MD("([[:digit:]]{1,2})[[:punct:]]([[:digit:]]{1,2})") // 04-22
+    MD("([[:digit:]]{1,2}) ([[:digit:]]{1,2})") // 04 22
+
     FINISH:
 
     sprintf(dest, "%04d-%02d-%02d", date->year, date->month, date->day);
