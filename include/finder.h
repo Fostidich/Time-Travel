@@ -22,7 +22,7 @@ typedef struct date {
 
 extern const char *months[12][MONTH_LANG];
 
-int find_date(char *dest, const char *lc_filename);
+int find_date(char *dest, const char *filename);
 
 int searchDmY(regex_t *regex, const char *pattern, const char *source, date_t *date, int month);
 int searchYmD(regex_t *regex, const char *pattern, const char *source, date_t *date, int month);

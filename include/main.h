@@ -6,7 +6,7 @@
  * NOTES:
  * - american formatted dates are unrecognised;
  * - years are valid if between 2000 and 2099;
- * - if a lc_filename has 2 dates, only the first one is considered.
+ * - if a filename has 2 dates, only the first one is considered.
  */
 
 #ifndef TIME_TRAVEL_MAIN_H
