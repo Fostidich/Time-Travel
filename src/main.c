@@ -1,113 +1,31 @@
-//
-// Created by kello on 04/04/24.
-//
-
-#include <stdio.h>
 #include <dirent.h>
+#include <stdio.h>
 #include <string.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include "main.h"
+
+#include "files.h"
 #include "finder.h"
 
-#define GREY "\033[0;30m"
-#define RED "\033[0;31m"
-#define YELLOW "\033[0;33m"
-#define WHITE "\033[0;37m"
-
-#ifdef TEST
-int main1(int argc, char **argv)
-#else
-int main(int argc, char **argv)
-#endif
-{
-    if (argc == 1 || strlen(argv[0]) > 3584) {
+int main(int argc, char **argv) {
+    if (argc < 2) {
         fprintf(stderr, "ERROR: no directory provided\n");
-        exit(1);
+        return 1;
     }
 
-    DIR *dir;
-    struct dirent *entry;
-    char path[strnlen(argv[1], PATH_MAX)];
-    strcpy(path, argv[1]);
-    dir = opendir(path);
+    if (strnlen(argv[1], PATH_MAX) == PATH_MAX) {
+        fprintf(stderr, "ERROR: directory name is too long\n");
+        return 2;
+    }
+
+    DIR *dir = opendir(argv[1]);
     if (!dir) {
-        fprintf(stderr, "ERROR: directory does not exist\n");
-        exit(1);
+        fprintf(stderr, "ERROR: directory not found\n");
+        return 3;
     }
 
-    printf("Analyzing filenames in %s\n\n", path);
-    long changed = 0;
-    while ((entry = readdir(dir)) != NULL) {
-        if (entry->d_type != DT_REG || entry->d_name[0] == '.')
-            continue;
+    printf("Analyzing filenames in %s\n\n", argv[1]);
+    int changes = analyze_filenames(argv[1], dir, find_date);
+    printf("\n%d files renamed\n", changes);
 
-        size_t filename_length = strnlen(entry->d_name, sizeof(entry->d_name) - 1);
-        char filename[filename_length + 16];
-        strncpy(filename, entry->d_name, filename_length);
-        filename[filename_length] = '\0';
-        if (filename_length == sizeof(entry->d_name) - 1) {
-            printf("%sERROR: file name is too long -> %s...%s\n", RED, filename, WHITE);
-            continue;
-        }
-
-        char *first_dot = strchr(filename, '.');
-        size_t extension_length = 1;
-        char extension[sizeof(entry->d_name) - 2];
-        extension[0] = '\0';
-        if (first_dot != NULL && first_dot != filename + filename_length - 1) {
-            extension_length = filename + filename_length - first_dot + 1;
-            strcpy(extension, first_dot);
-            *first_dot = '\0';
-        }
-
-        char new_name[DATE_LEN + extension_length + 16];
-        const int outcome = find_date(new_name, filename);
-        if (extension[0] != '\0') strcpy(first_dot, extension);
-        strcpy(new_name + DATE_LEN, extension);
-
-        if (outcome == DATE_UNKNOWN) {
-            printf("%sUNKNOWN DATE: %s%s\n", RED, filename, WHITE);
-            continue;
-        }
-
-        if (strcmp(new_name, filename) == 0) {
-            printf("%s%s -> %s%s\n", GREY, filename, new_name, WHITE);
-            continue;
-        }
-
-        char old_path[PATH_MAX], new_path[PATH_MAX];
-        snprintf(old_path, PATH_MAX, "%s/%s", path, filename);
-        snprintf(new_path, PATH_MAX, "%s/%s", path, new_name);
-        if (access(new_path, F_OK) == 0) {
-            int duplicates = 1;
-            char temp[PATH_MAX];
-            do {
-                snprintf(temp, PATH_MAX, "%s/%.*s (%d)%s",
-                         path, DATE_LEN, new_name, duplicates, extension);
-                duplicates++;
-            } while (access(temp, F_OK) == 0);
-            strcpy(new_path, temp);
-            sprintf(new_name + DATE_LEN, " (%d)%s", duplicates, extension);
-        }
-
-        if (rename(old_path, new_path) != 0) {
-            printf("%sERROR: unable to rename -> %s%s\n", RED, filename, WHITE);
-            continue;
-        }
-
-        changed++;
-        outcome == DATE_UNSURE ?
-        printf("%s%s -> %s%s\n", YELLOW, filename, new_name, WHITE) :
-        printf("%s -> %s\n", filename, new_name);
-    }
-
-    if (changed == 0) {
-        fprintf(stderr, "\nERROR: no file to rename\n");
-        exit(1);
-    }
-
-    printf("\n%ld files renamed\n", changed);
     closedir(dir);
     return 0;
 }
