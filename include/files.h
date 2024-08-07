@@ -7,7 +7,7 @@
 #define UNSURE 1
 #define UNKNOWN 2
 #define UNCHANGED 3
-#define UNABLE 4
+#define FAILURE 4
 
 /// Finder function is applied on each filename, and, based on the outcome of
 /// the search, the changes are printed on screen.
