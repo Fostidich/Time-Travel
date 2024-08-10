@@ -23,10 +23,4 @@ target_link_libraries(${PROJECT_NAME} pcre2-8)
 target_link_libraries(${PROJECT_NAME}-test pcre2-8)
 
 # Setup tests command
-set(FOUND 0)
-set(UNSURE 1)
-set(UNKNOWN 2)
-set(UNCHANGED 3)
-set(FAILURE 4)
-
-add_test(NAME 2024-08-07 COMMAND ${PROJECT_NAME}-test 2024-08-07 2024-08-07 ${FOUND})
+add_test(NAME YYYY-MM-DD COMMAND ${PROJECT_NAME}-test ../test/YYYY-MM-DD)
