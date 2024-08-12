@@ -42,7 +42,7 @@ int analyze_filenames(const char *folder, DIR *dir, int finder(char *, const cha
         int outcome = finder(new_name, filename);
 
         // Check if changes have actually been made
-        if (outcome != UNKNOWN && strncmp(new_name, filename, NAME_MAX) == 0) outcome = UNCHANGED;
+        if (outcome != UNKNOWN && strncmp(new_name, filename, NAME_MAX) == 0) outcome = UNCHANGED; // FIXME make UNCHANGED check direcly in finder function
 
         // Look for duplicates in filenames
         if (outcome != UNKNOWN && outcome != UNCHANGED)

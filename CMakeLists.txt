@@ -8,7 +8,7 @@ enable_testing()
 
 file(GLOB_RECURSE SOURCES "src/*.c")
 file(GLOB_RECURSE HEADERS "include/*.h")
-set(TESTS "test/main.c" "src/finder.c" "include/finder.h")
+set(TESTS "test/test.c" "src/finder.c" "include/finder.h")
 include_directories(include)
 
 # Make executable
