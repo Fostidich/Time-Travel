@@ -83,7 +83,7 @@ int find_date(char *dest, const char *filename) {
 
     pcre2_match_data_free(match_data);
     pcre2_code_free(re);
-    return FOUND;
+    return (strncmp(dest, filename, NAME_MAX) == 0) ? UNCHANGED : FOUND;
 }
 
 bool check_date(struct date date) {

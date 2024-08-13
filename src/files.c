@@ -41,35 +41,29 @@ int analyze_filenames(const char *folder, DIR *dir, int finder(char *, const cha
         char new_name[NAME_MAX] = "";
         int outcome = finder(new_name, filename);
 
-        // Check if changes have actually been made
-        if (outcome != UNKNOWN && strncmp(new_name, filename, NAME_MAX) == 0) outcome = UNCHANGED; // FIXME make UNCHANGED check direcly in finder function
-
-        // Look for duplicates in filenames
-        if (outcome != UNKNOWN && outcome != UNCHANGED)
-            if (!make_filename_unique(folder, new_name, extension)) outcome = FAILURE;
-
         // Add back extensions to filename and new name
-        if (first_dot != NULL) *first_dot = '.';
-        strncat(new_name, extension, NAME_MAX - strnlen(new_name, NAME_MAX));
-        if (strnlen(new_name, NAME_MAX) == NAME_MAX) outcome = FAILURE;
-
-        if (outcome != UNKNOWN && outcome != UNCHANGED && outcome != FAILURE) {
-            // Find old and new file path
-            char old_path[PATH_MAX], new_path[PATH_MAX];
-            snprintf(old_path, PATH_MAX, "%s/%s", folder, filename);
-            snprintf(new_path, PATH_MAX, "%s/%s", folder, new_name);
-
-            // Check path length overflows
-            if (strnlen(old_path, PATH_MAX) == PATH_MAX || strnlen(new_path, PATH_MAX) == PATH_MAX)
-                outcome = FAILURE;
-            else
-                // Rename file
-                if (rename(old_path, new_path) != 0)
-                    outcome = FAILURE;
-                else
-                    changes++;
+        if (first_dot != NULL) {
+            *first_dot = '.';
+            strncat(new_name, extension, NAME_MAX - strnlen(new_name, NAME_MAX));
+            if (strnlen(new_name, NAME_MAX) == NAME_MAX) outcome = FAILURE;
         }
 
+        // Skip other operations if file writing is unnecessary
+        if (outcome == UNKNOWN || outcome == UNCHANGED || outcome == FAILURE) goto EXIT;
+
+        // Look for duplicates in filenames
+        if (!make_filename_unique(folder, new_name)) {
+            outcome = FAILURE;
+            goto EXIT;
+        }
+
+        // Dump changes in filesystem
+        if (write_back(folder, filename, new_name))
+            changes++;
+        else
+            outcome = FAILURE;
+
+    EXIT:
         // Show changes
         print_outcome(outcome, filename, new_name);
     }
@@ -77,13 +71,35 @@ int analyze_filenames(const char *folder, DIR *dir, int finder(char *, const cha
     return changes;
 }
 
-int make_filename_unique(const char *dir, char *filename, const char *extension) {
-    char path[PATH_MAX];
-    snprintf(path, PATH_MAX, "%s/%s%s", dir, filename, extension);
-    if (strnlen(path, PATH_MAX) == PATH_MAX) return 0;
+int write_back(const char *dir, const char *filename, const char *new_name) {
+    // Find old and new file path
+    char old_path[PATH_MAX], new_path[PATH_MAX];
+    snprintf(old_path, PATH_MAX, "%s/%s", dir, filename);
+    snprintf(new_path, PATH_MAX, "%s/%s", dir, new_name);
 
+    // Check paths length overflows
+    if (strnlen(old_path, PATH_MAX) != PATH_MAX && strnlen(new_path, PATH_MAX) != PATH_MAX)
+        // Rename file
+        if (rename(old_path, new_path) == 0) return 1;
+
+    // And error occurred
+    return 0;
+}
+
+int make_filename_unique(const char *dir, char *filename) {
     // Start by checking raw filename
+    char path[PATH_MAX];
+    snprintf(path, PATH_MAX, "%s/%s", dir, filename);
+    if (strnlen(path, PATH_MAX) == PATH_MAX) return 0;
     if (access(path, F_OK) != 0) return errno == ENOENT;
+
+    // Extract extension
+    char extension[NAME_MAX] = "";
+    char *first_dot = strchr(filename, '.');
+    if (first_dot != NULL && first_dot != filename + strnlen(filename, NAME_MAX) - 1) {
+        strncpy(extension, first_dot, NAME_MAX);
+        *first_dot = '\0';
+    }
 
     // Add duplicatation number to filename
     int dupe = 0;
@@ -97,10 +113,12 @@ int make_filename_unique(const char *dir, char *filename, const char *extension)
     if (errno != ENOENT) return 0;
 
     // Update filename
-    char id[16];
-    snprintf(id, 16, "(%d)", dupe);
-    strncat(filename, id, NAME_MAX - strnlen(filename, NAME_MAX));
+    char idex[NAME_MAX];
+    snprintf(idex, NAME_MAX, "(%d)%.*s", dupe, NAME_MAX - 13, extension);
+    if (strnlen(idex, NAME_MAX) == NAME_MAX) return 0;
+    strncat(filename, idex, NAME_MAX - strnlen(filename, NAME_MAX));
     if (strnlen(filename, NAME_MAX) == NAME_MAX) return 0;
+
     return 1;
 }
 

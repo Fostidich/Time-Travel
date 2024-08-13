@@ -8,6 +8,7 @@ struct date {
 };
 
 int find_date(char *dest, const char *source);
+
 bool check_date(struct date date);
 
 #endif

@@ -93,7 +93,7 @@ int extract_from_line(int *outcome, char *expected, char *source, const char *bu
     i++;
 
     while (buffer[i] == ' ') i++;
-    while (buffer[i] != ' ' && buffer[i] != '\n') source[j++] = buffer[i++];
+    while (buffer[i] != '\n' && buffer[i] != '\0') source[j++] = buffer[i++];
     source[j] = '\0';
     return 1;
 }
