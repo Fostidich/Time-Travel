@@ -22,5 +22,5 @@ link_directories("/usr/lib/x86_64-linux-gnu")
 target_link_libraries(${PROJECT_NAME} pcre2-8)
 target_link_libraries(${PROJECT_NAME}-test pcre2-8)
 
-# Setup tests command
-add_test(NAME YYYY-MM-DD COMMAND ${PROJECT_NAME}-test ../test/YYYY-MM-DD)
+# Setup tests commands
+add_test(NAME YYYY-MM-DD COMMAND ${PROJECT_NAME}-test -d ../test/YYYY-MM-DD)

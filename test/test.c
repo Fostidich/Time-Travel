@@ -8,16 +8,38 @@
 
 int (*finder)(char *, const char *) = find_date;
 
+int single_test(const char *source);
+int file_test(const char *source);
 int test_line(const char *line);
 int test_check(int outcome, const char *expected, const char *source);
 int extract_from_line(int *outcome, char *expected, char *source, const char *buffer);
 
 int main(int argc, char **argv) {
     if (argc < 2) {
-        fprintf(stderr, "No file path provided");
+        fprintf(stderr, "No test source provided");
         return 1;
     }
-    FILE *file = fopen(argv[1], "r");
+
+    if (strcmp(argv[1], "-d") == 0 && argc == 3) return file_test(argv[2]);
+
+    char source[BUF_LEN] = "";
+    strcpy(source, argv[1]);
+    for (int i = 2; i < argc; i++) {
+        strcat(source, " ");
+        strcat(source, argv[i]);
+    }
+    return single_test(source);
+}
+
+int single_test(const char *source) {
+    char dest[BUF_LEN] = "";
+    int outcome = finder(dest, source);
+    printf("%d   %s", outcome, dest);
+    return 0;
+}
+
+int file_test(const char *source) {
+    FILE *file = fopen(source, "r");
     if (file == NULL) {
         fprintf(stderr, "Unable to open the provided file");
         return 1;
