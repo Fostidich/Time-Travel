@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "files.h"
 #include "finder.h"
 
 #define BUF_LEN 256
@@ -80,6 +81,7 @@ int test_line(const char *line) {
 int test_check(int outcome, const char *expected, const char *source) {
     char result[BUF_LEN];
     int state = finder(result, source);
+    if (outcome == UNKNOWN || outcome == FAILURE) return outcome == state;
     return strcmp(expected, result) == 0 && outcome == state;
 }
 

@@ -1,3 +1,4 @@
+#include <time.h>
 #define PCRE2_CODE_UNIT_WIDTH 8
 #include <pcre2.h>
 #include <stdio.h>
@@ -23,28 +24,66 @@ const char *months[12][MONTH_LANGS] = {
     {"december",  "dec", "dicembre",  "dic"}
 };
 
+const char *format = "%04d-%02d-%02d";
+
 int find_date(char *dest, const char *source) {
+    int found = 0;
+    char result[NAME_MAX];
+
+#define switch_find(v)                               \
+    {                                                \
+        switch (v) {                                 \
+            case FAILURE:                            \
+                return FAILURE;                      \
+            case FOUND:                              \
+                if (found++)                         \
+                    return UNSURE;                   \
+                else                                 \
+                    strncpy(dest, result, NAME_MAX); \
+        }                                            \
+    }
+
+    switch_find(find_numerical_date(result, source, "(\\d{4})-(\\d{2})-(\\d{2})", 3, 0, 1, 2));
+    switch_find(find_numerical_date(result, source, "(\\d{2})-(\\d{2})-(\\d{4})", 3, 2, 1, 0));
+
+    if (found) goto END;
+
+    switch_find(find_numerical_date(result, source, "(\\d{2})-(\\d{2})", 2, -1, 0, 1));
+    switch_find(find_numerical_date(result, source, "(\\d{2})-(\\d{2})", 2, -1, 1, 0));
+
+#undef switch_find
+
+END:  // return switch
+    if (!found) return UNKNOWN;
+    if (strncmp(dest, source, NAME_MAX) == 0) return UNCHANGED;
+    return FOUND;
+}
+
+int find_numerical_date(
+    char *dest, const char *source, const char *pattern, int captures, int yp, int mp, int dp) {
     // Find matches position
     int err_code;
-    int *ovector = execute_regex("(\\d{4})-(\\d{2})-(\\d{2})", source, 3, &err_code);
+    int *ovector = execute_regex(pattern, source, captures, &err_code);
     if (err_code == 0) return UNKNOWN;
     if (err_code == -1) return FAILURE;
 
     // Find date
     struct date date;
-    date.year = extract_date_value(ovector, source, 1);
-    date.month = extract_date_value(ovector, source, 2);
-    date.day = extract_date_value(ovector, source, 3);
+    date.year = (captures < 3) ? this_year() : extract_date_value(ovector, source, yp);
+    date.month = extract_date_value(ovector, source, mp);
+    date.day = extract_date_value(ovector, source, dp);
+    free(ovector);
+
+    // Date validity check
     if (!check_date(date)) return UNKNOWN;
 
     // Produce final string
-    snprintf(dest, NAME_MAX, "%04d-%02d-%02d", date.year, date.month, date.day);
-
-    free(ovector);
-    return (strncmp(dest, source, NAME_MAX) == 0) ? UNCHANGED : FOUND;
+    snprintf(dest, NAME_MAX, format, date.year, date.month, date.day);
+    return FOUND;
 }
 
 int extract_date_value(const int *ovector, const char *source, int pos) {
+    pos++;
     char *endptr;
     int len = ovector[2 * pos + 1] - ovector[2 * pos];
     char str[len + 1];
@@ -54,7 +93,7 @@ int extract_date_value(const int *ovector, const char *source, int pos) {
     return (endptr == str) ? -1 : res;
 }
 
-int *execute_regex(const char *pattern, const char *subject, int catches, int *error) {
+int *execute_regex(const char *pattern, const char *subject, int captures, int *error) {
     int err_number;
     PCRE2_SIZE err_offset;
 
@@ -75,7 +114,7 @@ int *execute_regex(const char *pattern, const char *subject, int catches, int *e
     rc = pcre2_match(re, (PCRE2_SPTR)subject, strlen(subject), 0, 0, match_data, NULL);
 
     // Manage match errors / absence
-    if (rc < catches + 1) {
+    if (rc < captures + 1) {
         pcre2_match_data_free(match_data);
         pcre2_code_free(re);
         *error = (rc >= PCRE2_ERROR_NOMATCH) ? 0 : -1;
@@ -96,6 +135,15 @@ int *execute_regex(const char *pattern, const char *subject, int catches, int *e
     pcre2_code_free(re);
     *error = 1;
     return (int *)res;
+}
+
+int this_year() {
+    time_t t;
+    struct tm *tm_info;
+    int year;
+    time(&t);
+    tm_info = localtime(&t);
+    return tm_info->tm_year + 1900;
 }
 
 bool check_date(struct date date) {
