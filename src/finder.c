@@ -43,13 +43,13 @@ int find_date(char *dest, const char *source) {
         }                                            \
     }
 
-    switch_find(find_numerical_date(result, source, "(\\d{4})-(\\d{2})-(\\d{2})", 3, 0, 1, 2));
-    switch_find(find_numerical_date(result, source, "(\\d{2})-(\\d{2})-(\\d{4})", 3, 2, 1, 0));
+    switch_find(find_numerical_date(result, source, R"((?:\D|^)(\d{4}|\d{2})[- _](\d{2})[- _](\d{2})(?:\D|$))", 3, 0, 1, 2));
+    switch_find(find_numerical_date(result, source, R"((?:\D|^)(\d{2})[- _](\d{2})[- _](\d{4}|\d{2})(?:\D|$))", 3, 2, 1, 0));
 
     if (found) goto END;
 
-    switch_find(find_numerical_date(result, source, "(\\d{2})-(\\d{2})", 2, -1, 0, 1));
-    switch_find(find_numerical_date(result, source, "(\\d{2})-(\\d{2})", 2, -1, 1, 0));
+    switch_find(find_numerical_date(result, source, R"((?:\D|^)(\d{2})[- _](\d{2})(?:\D|$))", 2, -1, 0, 1));
+    switch_find(find_numerical_date(result, source, R"((?:\D|^)(\d{2})[- _](\d{2})(?:\D|$))", 2, -1, 1, 0));
 
 #undef switch_find
 
@@ -73,6 +73,9 @@ int find_numerical_date(
     date.month = extract_date_value(ovector, source, mp);
     date.day = extract_date_value(ovector, source, dp);
     free(ovector);
+
+    // Allow year-unexplicit future dates only if in 10-years range
+    if (date.year < 100) date.year += (date.year <= this_year() - 1990) ? 2000 : 1900;
 
     // Date validity check
     if (!check_date(date)) return UNKNOWN;
