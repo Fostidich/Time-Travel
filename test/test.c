@@ -53,15 +53,15 @@ int file_test(const char *source) {
         count++;
         switch (test_line(buffer)) {
             case -1:
-                fprintf(stderr, "\033[33m!\033[0m %d: unable to read line", count);
+                fprintf(stderr, "\033[33m!\033[0m %4d: unable to read line", count);
                 fails++;
                 continue;
             case 0:
-                printf("\033[31mx\033[0m %d: %s", count, buffer);
+                printf("\033[31mx\033[0m %4d: %s", count, buffer);
                 fails++;
                 continue;
             case 1:
-                printf("\033[32mv\033[0m %d: %s", count, buffer);
+                printf("\033[32mv\033[0m %4d: %s", count, buffer);
                 continue;
         }
     }
