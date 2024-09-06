@@ -8,6 +8,8 @@
 #include "finder.h"
 
 #define MONTH_LANGS 4
+#define MAX_FUTURE_YEAR 10
+#define MAX_PATTERN 256
 
 const char *months[12][MONTH_LANGS] = {
     {"january",   "jan", "gennaio",   "gen"},
@@ -27,9 +29,6 @@ const char *months[12][MONTH_LANGS] = {
 const char *format = "%04d-%02d-%02d";
 
 int find_date(char *dest, const char *source) {
-    int found = 0;
-    char result[NAME_MAX];
-
 #define switch_find(v)                               \
     {                                                \
         switch (v) {                                 \
@@ -43,24 +42,51 @@ int find_date(char *dest, const char *source) {
         }                                            \
     }
 
-    switch_find(find_numerical_date(result, source, R"((?:\D|^)(\d{4}|\d{2})[- _](\d{2})[- _](\d{2})(?:\D|$))", 3, 0, 1, 2));
-    switch_find(find_numerical_date(result, source, R"((?:\D|^)(\d{2})[- _](\d{2})[- _](\d{4}|\d{2})(?:\D|$))", 3, 2, 1, 0));
+#define cycle_months(f, s, c, y, d)                                                      \
+    {                                                                                    \
+        for (int m = 0; m < 12; m++) {                                                   \
+            strncpy(pattern, f, MAX_PATTERN);                                            \
+            strncat(pattern, months[m][l], MAX_PATTERN - strnlen(pattern, MAX_PATTERN)); \
+            strncat(pattern, s, MAX_PATTERN - strnlen(pattern, MAX_PATTERN));            \
+            switch_find(find_worded_date(result, source, pattern, c, y, m, d));          \
+        }                                                                                \
+    }
+
+    int found = 0;
+    char result[NAME_MAX];
+
+    for (int l = 0; l < MONTH_LANGS; l++) {
+        char pattern[MAX_PATTERN];
+
+        cycle_months(R"((?:\D|^)(\d{4}|\d{2})[- _]?(?i)()", R"()[- _]?(\d{2})(?:\D|$))", 2, 0, 1);
+        cycle_months(R"((?:\D|^)(\d{2})[- _]?(?i)()", R"()[- _]?(\d{4}|\d{2})(?:\D|$))", 2, 1, 0);
+
+        if (found) goto END;
+
+        cycle_months(R"((?:\D|^)(\d{2})[- _]?(?i)()", R"()(?:\D|$))", 1, -1, 0);
+        cycle_months(R"((?:\D|^)(?i)()", R"()[- _]?(\d{2})(?:\D|$))", 1, -1, 0);
+
+        if (found) goto END;
+    }
+
+    switch_find(find_numerical_date(result, source, R"((?:\D|^)(\d{4}|\d{2})[- _]?(\d{2})[- _]?(\d{2})(?:\D|$))", 3, 0, 1, 2));
+    switch_find(find_numerical_date(result, source, R"((?:\D|^)(\d{2})[- _]?(\d{2})[- _]?(\d{4}|\d{2})(?:\D|$))", 3, 2, 1, 0));
 
     if (found) goto END;
 
-    switch_find(find_numerical_date(result, source, R"((?:\D|^)(\d{2})[- _](\d{2})(?:\D|$))", 2, -1, 0, 1));
-    switch_find(find_numerical_date(result, source, R"((?:\D|^)(\d{2})[- _](\d{2})(?:\D|$))", 2, -1, 1, 0));
-
-#undef switch_find
+    switch_find(find_numerical_date(result, source, R"((?:\D|^)(\d{2})[- _]?(\d{2})(?:\D|$))", 2, -1, 0, 1));
+    switch_find(find_numerical_date(result, source, R"((?:\D|^)(\d{2})[- _]?(\d{2})(?:\D|$))", 2, -1, 1, 0));
 
 END:  // return switch
     if (!found) return UNKNOWN;
     if (strncmp(dest, source, NAME_MAX) == 0) return UNCHANGED;
     return FOUND;
+
+#undef cycle_months
+#undef switch_find
 }
 
-int find_numerical_date(
-    char *dest, const char *source, const char *pattern, int captures, int yp, int mp, int dp) {
+int find_numerical_date(char *dest, const char *source, const char *pattern, int captures, int yp, int mp, int dp) {
     // Find matches position
     int err_code;
     int *ovector = execute_regex(pattern, source, captures, &err_code);
@@ -69,13 +95,38 @@ int find_numerical_date(
 
     // Find date
     struct date date;
-    date.year = (captures < 3) ? this_year() : extract_date_value(ovector, source, yp);
+    date.year = (yp == -1) ? this_year() : extract_date_value(ovector, source, yp);
     date.month = extract_date_value(ovector, source, mp);
     date.day = extract_date_value(ovector, source, dp);
     free(ovector);
 
-    // Allow year-unexplicit future dates only if in 10-years range
-    if (date.year < 100) date.year += (date.year <= this_year() - 1990) ? 2000 : 1900;
+    // Allow year-unexplicit future dates only if in range
+    if (date.year < 100) date.year += (date.year <= this_year() - 2000 + MAX_FUTURE_YEAR) ? 2000 : 1900;
+
+    // Date validity check
+    if (!check_date(date)) return UNKNOWN;
+
+    // Produce final string
+    snprintf(dest, NAME_MAX, format, date.year, date.month, date.day);
+    return FOUND;
+}
+
+int find_worded_date(char *dest, const char *source, const char *pattern, int captures, int yp, int mv, int dp) {
+    // Find matches position
+    int err_code;
+    int *ovector = execute_regex(pattern, source, captures, &err_code);
+    if (err_code == 0) return UNKNOWN;
+    if (err_code == -1) return FAILURE;
+
+    // Find date
+    struct date date;
+    date.year = (yp == -1) ? this_year() : extract_date_value(ovector, source, yp);
+    date.month = mv;
+    date.day = extract_date_value(ovector, source, dp);
+    free(ovector);
+
+    // Allow year-unexplicit future dates only if in range
+    if (date.year < 100) date.year += (date.year <= this_year() - 2000 + MAX_FUTURE_YEAR) ? 2000 : 1900;
 
     // Date validity check
     if (!check_date(date)) return UNKNOWN;
@@ -105,8 +156,7 @@ int *execute_regex(const char *pattern, const char *subject, int captures, int *
     int rc;                        // match return code
 
     // Compile and check compilation outcome
-    re = pcre2_compile(
-        (PCRE2_SPTR)pattern, PCRE2_ZERO_TERMINATED, 0, &err_number, &err_offset, NULL);
+    re = pcre2_compile((PCRE2_SPTR)pattern, PCRE2_ZERO_TERMINATED, 0, &err_number, &err_offset, NULL);
     if (re == NULL) {
         *error = -1;
         return NULL;
@@ -151,7 +201,7 @@ int this_year() {
 
 bool check_date(struct date date) {
     if (date.year == 0 || date.month == 0 || date.day == 0) return false;
-    if (date.year > 4000 || date.month > 12 || date.day > 31) return false;
+    if (date.year > this_year() + MAX_FUTURE_YEAR || date.month > 12 || date.day > 31) return false;
     const int daysInMonth[] = {0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
     int isLeap = date.year % 4 == 0 && (date.year % 100 != 0 || date.year % 400 == 0);
     if (isLeap && date.month == 2 && date.day > 29) return false;
