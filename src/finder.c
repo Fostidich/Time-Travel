@@ -1,8 +1,8 @@
-#include <time.h>
 #define PCRE2_CODE_UNIT_WIDTH 8
 #include <pcre2.h>
 #include <stdio.h>
 #include <string.h>
+#include <time.h>
 
 #include "files.h"
 #include "finder.h"
@@ -42,14 +42,14 @@ int find_date(char *dest, const char *source) {
         }                                            \
     }
 
-#define cycle_months(f, s, c, y, d)                                                      \
-    {                                                                                    \
-        for (int m = 0; m < 12; m++) {                                                   \
-            strncpy(pattern, f, MAX_PATTERN);                                            \
-            strncat(pattern, months[m][l], MAX_PATTERN - strnlen(pattern, MAX_PATTERN)); \
-            strncat(pattern, s, MAX_PATTERN - strnlen(pattern, MAX_PATTERN));            \
-            switch_find(find_worded_date(result, source, pattern, c, y, m, d));          \
-        }                                                                                \
+#define cycle_months(f, s, c, y, d)                                                          \
+    {                                                                                        \
+        for (int m = 1; m <= 12; m++) {                                                      \
+            strncpy(pattern, f, MAX_PATTERN);                                                \
+            strncat(pattern, months[m - 1][l], MAX_PATTERN - strnlen(pattern, MAX_PATTERN)); \
+            strncat(pattern, s, MAX_PATTERN - strnlen(pattern, MAX_PATTERN));                \
+            switch_find(execute_and_extract(result, source, pattern, c, y, -1, d, m));       \
+        }                                                                                    \
     }
 
     int found = 0;
@@ -58,24 +58,28 @@ int find_date(char *dest, const char *source) {
     for (int l = 0; l < MONTH_LANGS; l++) {
         char pattern[MAX_PATTERN];
 
-        cycle_months(R"((?:\D|^)(\d{4}|\d{2})[- _]?(?i)()", R"()[- _]?(\d{2})(?:\D|$))", 2, 0, 1);
-        cycle_months(R"((?:\D|^)(\d{2})[- _]?(?i)()", R"()[- _]?(\d{4}|\d{2})(?:\D|$))", 2, 1, 0);
+        cycle_months(R"((?:\D|^)(\d{4}|\d{2})[- _]?(?i)(?:)", R"()[- _]?(\d{2})(?:\D|$))", 2, 0, 1);
+        cycle_months(R"((?:\D|^)(\d{2})[- _]?(?i)(?:)", R"()[- _]?(\d{4}|\d{2})(?:\D|$))", 2, 1, 0);
 
         if (found) goto END;
 
-        cycle_months(R"((?:\D|^)(\d{2})[- _]?(?i)()", R"()(?:\D|$))", 1, -1, 0);
-        cycle_months(R"((?:\D|^)(?i)()", R"()[- _]?(\d{2})(?:\D|$))", 1, -1, 0);
+        cycle_months(R"((?:\D|^)(\d{2})[- _]?(?i)(?:)", R"()(?:\D|$))", 1, -1, 0);
+        cycle_months(R"((?:\D|^)(?i)(?:)", R"()[- _]?(\d{2})(?:\D|$))", 1, -1, 0);
 
         if (found) goto END;
     }
 
-    switch_find(find_numerical_date(result, source, R"((?:\D|^)(\d{4}|\d{2})[- _]?(\d{2})[- _]?(\d{2})(?:\D|$))", 3, 0, 1, 2));
-    switch_find(find_numerical_date(result, source, R"((?:\D|^)(\d{2})[- _]?(\d{2})[- _]?(\d{4}|\d{2})(?:\D|$))", 3, 2, 1, 0));
+    if (found) goto END;
+
+    switch_find(
+        execute_and_extract(result, source, R"((?:\D|^)(\d{4}|\d{2})[- _]?(\d{2})[- _]?(\d{2})(?:\D|$))", 3, 0, 1, 2, -1));
+    switch_find(
+        execute_and_extract(result, source, R"((?:\D|^)(\d{2})[- _]?(\d{2})[- _]?(\d{4}|\d{2})(?:\D|$))", 3, 2, 1, 0, -1));
 
     if (found) goto END;
 
-    switch_find(find_numerical_date(result, source, R"((?:\D|^)(\d{2})[- _]?(\d{2})(?:\D|$))", 2, -1, 0, 1));
-    switch_find(find_numerical_date(result, source, R"((?:\D|^)(\d{2})[- _]?(\d{2})(?:\D|$))", 2, -1, 1, 0));
+    switch_find(execute_and_extract(result, source, R"((?:\D|^)(\d{2})[- _]?(\d{2})(?:\D|$))", 2, -1, 0, 1, -1));
+    switch_find(execute_and_extract(result, source, R"((?:\D|^)(\d{2})[- _]?(\d{2})(?:\D|$))", 2, -1, 1, 0, -1));
 
 END:  // return switch
     if (!found) return UNKNOWN;
@@ -86,7 +90,7 @@ END:  // return switch
 #undef switch_find
 }
 
-int find_numerical_date(char *dest, const char *source, const char *pattern, int captures, int yp, int mp, int dp) {
+int execute_and_extract(char *dest, const char *source, const char *pattern, int captures, int yp, int mp, int dp, int mv) {
     // Find matches position
     int err_code;
     int *ovector = execute_regex(pattern, source, captures, &err_code);
@@ -96,32 +100,8 @@ int find_numerical_date(char *dest, const char *source, const char *pattern, int
     // Find date
     struct date date;
     date.year = (yp == -1) ? this_year() : extract_date_value(ovector, source, yp);
-    date.month = extract_date_value(ovector, source, mp);
-    date.day = extract_date_value(ovector, source, dp);
-    free(ovector);
-
-    // Allow year-unexplicit future dates only if in range
-    if (date.year < 100) date.year += (date.year <= this_year() - 2000 + MAX_FUTURE_YEAR) ? 2000 : 1900;
-
-    // Date validity check
-    if (!check_date(date)) return UNKNOWN;
-
-    // Produce final string
-    snprintf(dest, NAME_MAX, format, date.year, date.month, date.day);
-    return FOUND;
-}
-
-int find_worded_date(char *dest, const char *source, const char *pattern, int captures, int yp, int mv, int dp) {
-    // Find matches position
-    int err_code;
-    int *ovector = execute_regex(pattern, source, captures, &err_code);
-    if (err_code == 0) return UNKNOWN;
-    if (err_code == -1) return FAILURE;
-
-    // Find date
-    struct date date;
-    date.year = (yp == -1) ? this_year() : extract_date_value(ovector, source, yp);
-    date.month = mv;
+    date.month = (mp == -1) ? mv : extract_date_value(ovector, source, mp);
+    ;
     date.day = extract_date_value(ovector, source, dp);
     free(ovector);
 

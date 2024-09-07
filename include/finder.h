@@ -24,12 +24,8 @@ int extract_date_value(const int *ovector, const char *source, int pos);
 
 // Find the date contained in the source string by providing the regex pattern and the number of
 // captures. The position order of numerical values (starting from 0) of the date are to be pointed
-// with yp, mp and dp. If a parameter (e.g. the year) is not considered, use -1 as argument.
-int find_numerical_date(char *dest, const char *source, const char *pattern, int captures, int yp, int mp, int dp);
-// Find the date contained in the source string by providing the regex pattern and the number of
-// captures. The position order of numerical values (starting from 0) of the date are to be pointed
-// with yp and dp, while the month value with mv. If a parameter (e.g. the year) is not considered,
-// use -1 as argument.
-int find_worded_date(char *dest, const char *source, const char *pattern, int captures, int yp, int mv, int dp);
+// with yp, mp and dp. If a parameter (e.g. the year or the month) is not considered, use -1 as argument.
+// If the date is matched with worded month, the month value is to be specified with mv.
+int execute_and_extract(char *dest, const char *source, const char *pattern, int captures, int yp, int mp, int dp, int mv);
 
 #endif
