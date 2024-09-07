@@ -15,7 +15,7 @@ int this_year();
 // Regex is compiled and executed. The returned array contains the subject indexes corresponding to
 // the identified matches (ovector).
 // Returns 1 for success, 0 for no match, -1 for failure.
-// The returned array is to bee freed.
+// The returned array is to be freed.
 int *execute_regex(const char *pattern, const char *subject, int catches, int *error);
 
 // Return the int value of the number in the source string at the provided capturing position, using

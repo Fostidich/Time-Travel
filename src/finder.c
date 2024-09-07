@@ -55,31 +55,57 @@ int find_date(char *dest, const char *source) {
     int found = 0;
     char result[NAME_MAX];
 
+    // Look for dates with worded month, including year; symbol between values are not mandatory
     for (int l = 0; l < MONTH_LANGS; l++) {
         char pattern[MAX_PATTERN];
 
-        cycle_months(R"((?:\D|^)(\d{4}|\d{2})[- _]?(?i)(?:)", R"()[- _]?(\d{2})(?:\D|$))", 2, 0, 1);
-        cycle_months(R"((?:\D|^)(\d{2})[- _]?(?i)(?:)", R"()[- _]?(\d{4}|\d{2})(?:\D|$))", 2, 1, 0);
-
-        if (found) goto END;
-
-        cycle_months(R"((?:\D|^)(\d{2})[- _]?(?i)(?:)", R"()(?:\D|$))", 1, -1, 0);
-        cycle_months(R"((?:\D|^)(?i)(?:)", R"()[- _]?(\d{2})(?:\D|$))", 1, -1, 0);
+        // YYYY-month-DD // YYYY-month-D // YY-month-DD // YY-month-D
+        cycle_months(R"((?:\D|^)(\d{4}|\d{2})[- _]?(?i)(?:)", R"()[- _]?(\d{2}|\d{1})(?:\D|$))", 2, 0, 1);
+        // DD-month-YYYY // DD-month-YY // D-month-YYYY // D-month-YY
+        cycle_months(R"((?:\D|^)(\d{2}|\d{1})[- _]?(?i)(?:)", R"()[- _]?(\d{4}|\d{2})(?:\D|$))", 2, 1, 0);
 
         if (found) goto END;
     }
 
+    // Look for dates with worded month, excluding year; symbol between values are not mandatory
+    for (int l = 0; l < MONTH_LANGS; l++) {
+        char pattern[MAX_PATTERN];
+
+        // month-DD // month-D
+        cycle_months(R"((?i)(?:)", R"()[- _]?(\d{2}|\d{1})(?:\D|$))", 1, -1, 0);
+        // DD-month // D-month
+        cycle_months(R"((?:\D|^)(\d{2}|\d{1})[- _]?(?i)(?:)", R"())", 1, -1, 0);
+
+        if (found) goto END;
+    }
+
+    // Look for dates with numerical month, including year; symbol between values are either mandatory or not
+    {
+        // YYYY-MM-DD // YYYY-MM-D // YYYY-M-DD // YYYY-M-D // YY-MM-DD // YY-MM-D // YY-M-DD // YY-M-D
+        switch_find(execute_and_extract(result, source, R"((?:\D|^)(\d{4}|\d{2})[- _](\d{2}|\d{1})[- _](\d{2}|\d{1})(?:\D|$))", 3, 0, 1, 2, -1));
+        // DD-MM-YYYY // DD-MM-YY // DD-M-YYYY // DD-M-YY // D-MM-YYYY // D-MM-YY // D-M-YYYY // D-M-YY
+        switch_find(execute_and_extract(result, source, R"((?:\D|^)(\d{2}|\d{1})[- _](\d{2}|\d{1})[- _](\d{4}|\d{2})(?:\D|$))", 3, 2, 1, 0, -1));
+
+        // YYYYMMDD // YYMMDD
+        switch_find(execute_and_extract(result, source, R"((?:\D|^)(\d{4}|\d{2})(\d{2})(\d{2})(?:\D|$))", 3, 0, 1, 2, -1));
+        // DDMMYYYY // DDMMYY
+        switch_find(execute_and_extract(result, source, R"((?:\D|^)(\d{2})(\d{2})(\d{4}|\d{2})(?:\D|$))", 3, 2, 1, 0, -1));
+    }
+
     if (found) goto END;
 
-    switch_find(
-        execute_and_extract(result, source, R"((?:\D|^)(\d{4}|\d{2})[- _]?(\d{2})[- _]?(\d{2})(?:\D|$))", 3, 0, 1, 2, -1));
-    switch_find(
-        execute_and_extract(result, source, R"((?:\D|^)(\d{2})[- _]?(\d{2})[- _]?(\d{4}|\d{2})(?:\D|$))", 3, 2, 1, 0, -1));
+    // Look for dates with numerical month, excluding year; symbol between values are either mandatory or not
+    {
+        // MM-DD // MM-D // M-DD // M-D
+        switch_find(execute_and_extract(result, source, R"((?:\D|^)(\d{2}|\d{1})[- _](\d{2}|\d{1})(?:\D|$))", 2, -1, 0, 1, -1));
+        // DD-MM // DD-M // D-MM // D-M
+        switch_find(execute_and_extract(result, source, R"((?:\D|^)(\d{2}|\d{1})[- _](\d{2}|\d{1})(?:\D|$))", 2, -1, 1, 0, -1));
 
-    if (found) goto END;
-
-    switch_find(execute_and_extract(result, source, R"((?:\D|^)(\d{2})[- _]?(\d{2})(?:\D|$))", 2, -1, 0, 1, -1));
-    switch_find(execute_and_extract(result, source, R"((?:\D|^)(\d{2})[- _]?(\d{2})(?:\D|$))", 2, -1, 1, 0, -1));
+        // MMDD
+        switch_find(execute_and_extract(result, source, R"((?:\D|^)(\d{2})(\d{2})(?:\D|$))", 2, -1, 0, 1, -1));
+        // DDMM
+        switch_find(execute_and_extract(result, source, R"((?:\D|^)(\d{2})(\d{2})(?:\D|$))", 2, -1, 1, 0, -1));
+    }
 
 END:  // return switch
     if (!found) return UNKNOWN;
@@ -101,7 +127,6 @@ int execute_and_extract(char *dest, const char *source, const char *pattern, int
     struct date date;
     date.year = (yp == -1) ? this_year() : extract_date_value(ovector, source, yp);
     date.month = (mp == -1) ? mv : extract_date_value(ovector, source, mp);
-    ;
     date.day = extract_date_value(ovector, source, dp);
     free(ovector);
 
@@ -183,8 +208,10 @@ bool check_date(struct date date) {
     if (date.year == 0 || date.month == 0 || date.day == 0) return false;
     if (date.year > this_year() + MAX_FUTURE_YEAR || date.month > 12 || date.day > 31) return false;
     const int daysInMonth[] = {0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
-    int isLeap = date.year % 4 == 0 && (date.year % 100 != 0 || date.year % 400 == 0);
-    if (isLeap && date.month == 2 && date.day > 29) return false;
+    if (date.month == 2) {
+        int isLeap = date.year % 4 == 0 && (date.year % 100 != 0 || date.year % 400 == 0);
+        if (isLeap && date.day <= 29) return true;
+    }
     if (date.day > daysInMonth[date.month]) return false;
     return true;
 }
